@@ -16,7 +16,7 @@ export class BusinessService {
   create(createBusinessDto: CreateBusinessDto) {
     const business = plainToClass(Business, createBusinessDto);
 
-    return this.businessRepository.insert(business);
+    this.businessRepository.insert(business);
   }
 
   findAll() {

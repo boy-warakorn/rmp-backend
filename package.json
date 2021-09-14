@@ -33,6 +33,7 @@
     "@nestjs/swagger": "^5.0.9",
     "@nestjs/typeorm": "^8.0.2",
     "@types/passport-google-oauth20": "^2.0.9",
+    "bcryptjs": "^2.4.3",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "express-basic-auth": "^1.2.0",

@@ -7,10 +7,13 @@ import { AllExceptionsFilter } from './exception/allExceptionFilter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const apiPath = '/api/documentation';
+
+  app.setGlobalPrefix('/api');
+
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter());
   app.enableCors();
-  const apiPath = '/api/documentation';
   app.use(
     apiPath,
     basicAuth({
@@ -18,12 +21,14 @@ async function bootstrap() {
       users: { apiUser: 'apiPass' },
     }),
   );
+
   const options = new DocumentBuilder()
     .setTitle('RMP API')
     .setDescription('RMP API Description')
     .setVersion('0.0.1-ALPHA')
     .addBearerAuth()
     .build();
+
   const document = SwaggerModule.createDocument(app, options);
 
   SwaggerModule.setup(apiPath, app, document, {
@@ -32,6 +37,7 @@ async function bootstrap() {
       operationsSorter: 'alpha',
     },
   });
+
   await app.listen(1234);
 }
 bootstrap();
