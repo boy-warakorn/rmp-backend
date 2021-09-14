@@ -1,3 +1,4 @@
+import { Room } from 'src/rooms/entities/room.model';
 import { User } from 'src/users/entities/user.model';
 import {
   Entity,
@@ -5,7 +6,6 @@ import {
   PrimaryGeneratedColumn,
   Unique,
   OneToMany,
-  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -17,6 +17,9 @@ export class Business {
   @Column()
   name: string;
 
-  @OneToMany((type) => User, (user) => user.business)
+  @OneToMany(() => User, (user) => user.business)
   user: User[];
+
+  @OneToMany(() => Room, (room) => room.business)
+  room: Room[];
 }

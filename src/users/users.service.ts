@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { BusinessService } from 'src/business/business.service';
@@ -17,6 +17,15 @@ export class UsersService {
 
   create(createUserDto: CreateUserDto) {
     const user = plainToClass(User, createUserDto);
+
+    const found = this.userRepository.find({
+      where: { username: createUserDto.username },
+    });
+
+    if (found) {
+      throw new ConflictException();
+    }
+
     this.userRepository.save(user);
   }
 
@@ -24,8 +33,6 @@ export class UsersService {
     const user = await this.userRepository.find({
       where: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
     });
-
-    console.log(`user`, user);
 
     return user;
   }

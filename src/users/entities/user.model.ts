@@ -5,9 +5,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { hash, compare } from 'bcryptjs';
+import { Room } from 'src/rooms/entities/room.model';
 
 @Entity()
 export class User {
@@ -35,9 +37,12 @@ export class User {
   @Column()
   businessId: string;
 
-  @ManyToOne((type) => Business, (business) => business.user)
+  @ManyToOne(() => Business, (business) => business.user)
   @JoinColumn()
   business: Business;
+
+  @OneToOne(() => Room, (room) => room.user)
+  room: Room;
 
   @BeforeInsert()
   async hashPassword(): Promise<void> {

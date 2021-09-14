@@ -21,8 +21,9 @@ export class AuthService {
     if (userFound && compare(hashPassword, userFound[0].password)) {
       const token = this.jwtService.sign(
         {
-          sub: userFound[0].id,
+          userId: userFound[0].id,
           username: userFound[0].username,
+          businessId: userFound[0].businessId,
         },
         { secret: this.configService.get<string>('CLIENT_SECRET') },
       );
