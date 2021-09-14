@@ -3,8 +3,22 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { database } from './configs';
 import { BusinessModule } from './business/business.module';
 import { UsersModule } from './users/users.module';
+import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
+import { JwtAuthStrategy } from './jwt-auth/jwt-auth.strategy';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(database), BusinessModule, UsersModule],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRoot(database),
+    BusinessModule,
+    UsersModule,
+    JwtAuthModule,
+    AuthModule,
+  ],
 })
 export class AppModule {}

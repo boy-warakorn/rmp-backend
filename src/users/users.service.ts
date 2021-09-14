@@ -20,6 +20,16 @@ export class UsersService {
     this.userRepository.save(user);
   }
 
+  async getUserByUsernameOrEmail(usernameOrEmail: string) {
+    const user = await this.userRepository.find({
+      where: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+    });
+
+    console.log(`user`, user);
+
+    return user;
+  }
+
   async getUser(id: string) {
     const user = await this.userRepository.findOne(id);
     const businessName = await this.businessService.getBusinessName(
