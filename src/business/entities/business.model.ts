@@ -1,11 +1,22 @@
-import { Entity, Column, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { User } from 'src/users/entities/user.model';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  Unique,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity()
-@Unique(['businessName'])
+@Unique(['name'])
 export class Business {
-  @PrimaryGeneratedColumn()
-  businessID: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
-  businessName: string;
+  name: string;
+
+  @OneToMany((type) => User, (user) => user.business)
+  user: User[];
 }

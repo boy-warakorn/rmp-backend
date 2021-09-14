@@ -15,7 +15,7 @@ export class BusinessService {
 
   create(createBusinessDto: CreateBusinessDto) {
     const business = plainToClass(Business, createBusinessDto);
-    console.log(`business`, business);
+
     return this.businessRepository.insert(business);
   }
 
