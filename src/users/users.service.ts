@@ -15,18 +15,18 @@ export class UsersService {
     private readonly businessService: BusinessService,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     const user = plainToClass(User, createUserDto);
 
-    const found = this.userRepository.find({
+    const found = await this.userRepository.find({
       where: { username: createUserDto.username },
     });
 
-    if (found) {
+    if (found.length < 0) {
       throw new ConflictException();
     }
 
-    this.userRepository.save(user);
+    await this.userRepository.save(user);
   }
 
   async getUserByUsernameOrEmail(usernameOrEmail: string) {
