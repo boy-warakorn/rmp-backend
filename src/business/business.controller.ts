@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { BusinessService } from './business.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
-import { UpdateBusinessDto } from './dto/update-business.dto';
 
 @Controller('business')
 export class BusinessController {
@@ -20,5 +19,10 @@ export class BusinessController {
   @HttpCode(200)
   create(@Body() createBusinessDto: CreateBusinessDto) {
     return this.businessService.create(createBusinessDto);
+  }
+
+  @Get('/:id/users')
+  getAllUsers(@Param('id') id: string) {
+    return this.businessService.getAllUserFromBusinessId(id);
   }
 }

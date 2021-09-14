@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { CreateBusinessDto } from './dto/create-business.dto';
-import { UpdateBusinessDto } from './dto/update-business.dto';
 import { Business } from './entities/business.model';
 
 @Injectable()
@@ -13,25 +12,34 @@ export class BusinessService {
     private businessRepository: Repository<Business>,
   ) {}
 
-  create(createBusinessDto: CreateBusinessDto) {
+  async create(createBusinessDto: CreateBusinessDto) {
     const business = plainToClass(Business, createBusinessDto);
 
-    this.businessRepository.insert(business);
+    await this.businessRepository.insert(business);
   }
 
-  findAll() {
-    return `This action returns all business`;
+  async getAllUserFromBusinessId(id: string) {
+    const business = await this.businessRepository.findOne(id, {
+      relations: ['user'],
+    });
+
+    const resultUsers = business.user.map((user) => ({
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      phoneNumber: user.phoneNumber,
+    }));
+
+    return {
+      businessName: business.name,
+      users: resultUsers,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} business`;
-  }
-
-  update(id: number, updateBusinessDto: UpdateBusinessDto) {
-    return `This action updates a #${id} business`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} business`;
+  async getBusinessName(id: string) {
+    const result = await this.businessRepository.findOne(id);
+    return result.name;
   }
 }

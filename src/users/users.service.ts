@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
+import { BusinessService } from 'src/business/business.service';
+import { Business } from 'src/business/entities/business.model';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.model';
 
 @Injectable()
@@ -11,6 +12,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private readonly businessService: BusinessService,
   ) {}
 
   create(createUserDto: CreateUserDto) {
@@ -18,19 +20,22 @@ export class UsersService {
     this.userRepository.save(user);
   }
 
-  findAll() {
-    return `This action returns all users`;
-  }
+  async getUser(id: string) {
+    const user = await this.userRepository.findOne(id);
+    const businessName = await this.businessService.getBusinessName(
+      user.businessId,
+    );
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    return {
+      id: user.id,
+      profile: {
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        role: user.role,
+      },
+      businessName: businessName,
+    };
   }
 }
