@@ -23,8 +23,14 @@ export class Room {
   @Column({ type: 'double precision' })
   pricePerMonth: number;
 
+  @Column({ type: 'double precision' })
+  purchasePrice: number;
+
   @Column({ type: 'date', nullable: true })
   lastMoveAt: string;
+
+  @Column({ type: 'varchar' })
+  unit: string;
 
   @Column()
   businessId: string;

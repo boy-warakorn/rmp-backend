@@ -26,4 +26,11 @@ export class RoomsController {
     const { businessId } = req.user as any;
     return this.roomsService.create(createRoomDto, businessId);
   }
+
+  @Post('/:id/update')
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
+    return this.roomsService.updateRoom(id, updateRoomDto);
+  }
 }
