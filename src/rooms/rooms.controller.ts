@@ -35,7 +35,7 @@ export class RoomsController {
     return this.roomsService.updateRoom(id, updateRoomDto);
   }
 
-  @Post('/:id/add-owner')
+  @Post('/:id/owner')
   @HttpCode(201)
   @UseGuards(JwtAuthGuard)
   addRoomOwner(
