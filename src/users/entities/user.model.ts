@@ -40,6 +40,9 @@ export class User {
   @Column()
   citizenNumber: string;
 
+  @Column({ type: 'boolean' })
+  isDelete: boolean;
+
   @ManyToOne(() => Business, (business) => business.user)
   @JoinColumn()
   business: Business;

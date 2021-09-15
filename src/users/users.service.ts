@@ -1,8 +1,11 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { BusinessService } from 'src/business/business.service';
-import { Business } from 'src/business/entities/business.model';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.model';
@@ -26,6 +29,8 @@ export class UsersService {
       throw new ConflictException();
     }
 
+    user.isDelete = false;
+
     await this.userRepository.save(user);
   }
 
@@ -38,7 +43,13 @@ export class UsersService {
   }
 
   async getUser(id: string) {
-    const user = await this.userRepository.findOne(id);
+    const user = await this.userRepository.findOne(id, {
+      where: { isDelete: true },
+    });
+    if (!user) {
+      throw new NotFoundException();
+    }
+
     const businessName = await this.businessService.getBusinessName(
       user.businessId,
     );
