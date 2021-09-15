@@ -7,9 +7,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { generate } from 'generate-password';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { AddOwnerDto } from './dto/add-owner.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
+import { GetRoomsQueryDto } from './dto/get-rooms-query.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Room } from './entities/room.model';
 
@@ -20,6 +21,37 @@ export class RoomsService {
     private roomRepository: Repository<Room>,
     private readonly userService: UsersService,
   ) {}
+
+  async getRooms(getRoomsQueryDto: GetRoomsQueryDto, businessId: string) {
+    const { filter_tab } = getRoomsQueryDto;
+    const selectCondition: (keyof Room)[] = [
+      'lastMoveAt',
+      'pricePerMonth',
+      'purchasePrice',
+      'roomNumber',
+      'size',
+      'type',
+      'unit',
+    ];
+
+    let rooms: Room[];
+    if (!filter_tab) {
+      rooms = await this.roomRepository.find({
+        select: selectCondition,
+        where: { businessId: businessId },
+      });
+    } else {
+      rooms = await this.roomRepository.find({
+        select: selectCondition,
+        where: {
+          businessId: businessId,
+          userId: filter_tab === 'unoccupied' ? IsNull() : Not(IsNull()),
+        },
+      });
+    }
+
+    return { rooms: rooms };
+  }
 
   async create(createRoomDto: CreateRoomDto, businessId: string) {
     const room = new Room();

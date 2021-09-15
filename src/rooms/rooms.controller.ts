@@ -9,16 +9,25 @@ import {
   UseGuards,
   Req,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { JwtAuthGuard } from 'src/jwt-auth/jwt-auth.guard';
 import { AddOwnerDto } from './dto/add-owner.dto';
+import { GetRoomsQueryDto } from './dto/get-rooms-query.dto';
 
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
+
+  @Get('')
+  @UseGuards(JwtAuthGuard)
+  getRooms(@Req() req: Express.Request, @Query() query: GetRoomsQueryDto) {
+    const { businessId } = req.user as any;
+    return this.roomsService.getRooms(query, businessId);
+  }
 
   @Post('')
   @HttpCode(201)
