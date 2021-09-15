@@ -37,6 +37,12 @@ export class RoomsController {
     return this.roomsService.create(createRoomDto, businessId);
   }
 
+  @Get('/:id')
+  @UseGuards(JwtAuthGuard)
+  getRoom(@Param('id') id: string) {
+    return this.roomsService.getRoom(id);
+  }
+
   @Post('/:id/update')
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)

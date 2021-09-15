@@ -26,6 +26,26 @@ export class RoomsService {
     private readonly userService: UsersService,
   ) {}
 
+  async getRoom(roomNumber: string) {
+    const room = await this.roomRepository.findOne(roomNumber);
+    const user = await this.userService.getUser(room.userId);
+    return {
+      resident: {
+        name: user.profile.name,
+        phoneNumber: user.profile.phoneNumber,
+      },
+      room: {
+        roomNumber: room.roomNumber,
+        size: room.size,
+        type: room.type,
+        pricePerMonth: room.pricePerMonth,
+        purchasePrice: room.purchasePrice,
+        unit: room.unit,
+        lastMoveAt: dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:MM:ss'),
+      },
+    };
+  }
+
   async getRooms(getRoomsQueryDto: GetRoomsQueryDto, businessId: string) {
     const { filter_tab } = getRoomsQueryDto;
     const selectCondition: (keyof Room)[] = [
