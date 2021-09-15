@@ -22,16 +22,19 @@ export class UsersService {
     const user = plainToClass(User, createUserDto);
 
     const found = await this.userRepository.find({
-      where: { username: createUserDto.username },
+      where: [
+        { username: createUserDto.username },
+        { email: createUserDto.email },
+      ],
     });
 
-    if (found.length < 0) {
+    if (found.length > 0) {
       throw new ConflictException();
     }
 
     user.isDelete = false;
 
-    await this.userRepository.save(user);
+    return await this.userRepository.save(user);
   }
 
   async getUserByUsernameOrEmail(usernameOrEmail: string) {
@@ -65,5 +68,12 @@ export class UsersService {
       },
       businessName: businessName,
     };
+  }
+
+  async deleteUserById(id: string) {
+    this.userRepository.save({
+      id: id,
+      isDelete: true,
+    });
   }
 }

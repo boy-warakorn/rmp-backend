@@ -20,8 +20,11 @@ export class UsersController {
 
   @Post('')
   @UseGuards(JwtAuthGuard)
-  create(@Req() req: Express.Request, @Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(
+    @Req() req: Express.Request,
+    @Body() createUserDto: CreateUserDto,
+  ) {
+    await this.usersService.create(createUserDto);
   }
 
   @Get('')

@@ -1,6 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { generate } from 'generate-password';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
+import { AddOwnerDto } from './dto/add-owner.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Room } from './entities/room.model';
@@ -10,6 +18,7 @@ export class RoomsService {
   constructor(
     @InjectRepository(Room)
     private roomRepository: Repository<Room>,
+    private readonly userService: UsersService,
   ) {}
 
   async create(createRoomDto: CreateRoomDto, businessId: string) {
@@ -52,5 +61,51 @@ export class RoomsService {
       roomNumber: roomNumber,
       ...room,
     });
+  }
+
+  async addRoomOwner(
+    addOwnerDto: AddOwnerDto,
+    roomNumber: string,
+    businessId: string,
+  ) {
+    const room = await this.roomRepository.findOne(roomNumber);
+
+    if (room.userId) {
+      throw new ConflictException();
+    }
+    const { name, email, phoneNumber, citizenNumber } = addOwnerDto;
+    const userDto = new CreateUserDto();
+    const password = generate({ length: 10 });
+    userDto.businessId = businessId;
+    userDto.citizenNumber = citizenNumber;
+    userDto.name = name;
+    userDto.email = email;
+    userDto.role = 'resident';
+    userDto.phoneNumber = phoneNumber;
+    userDto.password = password;
+
+    const result = await this.userService.create(userDto);
+    await this.roomRepository.save({
+      roomNumber: roomNumber,
+      userId: result.id,
+    });
+
+    return {
+      email: email,
+      password: password,
+    };
+  }
+
+  async deleteRoomOwner(roomNumber: string) {
+    const room = await this.roomRepository.findOne(roomNumber);
+    if (!room) {
+      throw new NotFoundException();
+    }
+
+    await this.roomRepository.save({
+      roomNumber: roomNumber,
+      userId: null,
+    });
+    await this.userService.deleteUserById(room.userId);
   }
 }
