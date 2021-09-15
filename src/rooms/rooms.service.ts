@@ -12,6 +12,7 @@ import { UsersService } from 'src/users/users.service';
 import { IsNull, Not, Repository } from 'typeorm';
 import { AddOwnerDto } from './dto/add-owner.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
+import { EditOwnerDto } from './dto/edit-owner.dto';
 import { GetRoomsQueryDto } from './dto/get-rooms-query.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Room } from './entities/room.model';
@@ -28,12 +29,17 @@ export class RoomsService {
 
   async getRoom(roomNumber: string) {
     const room = await this.roomRepository.findOne(roomNumber);
-    const user = await this.userService.getUser(room.userId);
+    let user;
+    const isOccupied = room.userId !== null;
+
+    if (isOccupied) user = await this.userService.getUser(room.userId);
     return {
-      resident: {
-        name: user.profile.name,
-        phoneNumber: user.profile.phoneNumber,
-      },
+      resident: isOccupied
+        ? {
+            name: user.profile.name,
+            phoneNumber: user.profile.phoneNumber,
+          }
+        : {},
       room: {
         roomNumber: room.roomNumber,
         size: room.size,
@@ -43,6 +49,7 @@ export class RoomsService {
         unit: room.unit,
         lastMoveAt: dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:MM:ss'),
       },
+      status: isOccupied ? 'occupied' : 'unoccupied',
     };
   }
 
@@ -129,6 +136,11 @@ export class RoomsService {
       roomNumber: roomNumber,
       ...room,
     });
+  }
+
+  async updateRoomOwner(editRoomOwner: EditOwnerDto, roomNumber: string) {
+    const room = await this.roomRepository.findOne(roomNumber);
+    await this.userService.updateUserById(room.userId, editRoomOwner);
   }
 
   async addRoomOwner(

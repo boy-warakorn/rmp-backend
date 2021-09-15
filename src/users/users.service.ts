@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { BusinessService } from 'src/business/business.service';
+import { EditOwnerDto } from 'src/rooms/dto/edit-owner.dto';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.model';
@@ -43,6 +44,10 @@ export class UsersService {
     });
 
     return user;
+  }
+
+  async updateUserById(id: string, editOwnerDto: EditOwnerDto) {
+    await this.userRepository.save({ id: id, ...editOwnerDto });
   }
 
   async getUser(id: string) {

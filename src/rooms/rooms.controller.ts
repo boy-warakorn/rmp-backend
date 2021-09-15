@@ -17,6 +17,7 @@ import { UpdateRoomDto } from './dto/update-room.dto';
 import { JwtAuthGuard } from 'src/jwt-auth/jwt-auth.guard';
 import { AddOwnerDto } from './dto/add-owner.dto';
 import { GetRoomsQueryDto } from './dto/get-rooms-query.dto';
+import { EditOwnerDto } from './dto/edit-owner.dto';
 
 @Controller('rooms')
 export class RoomsController {
@@ -60,6 +61,13 @@ export class RoomsController {
   ) {
     const { businessId } = req.user as any;
     return this.roomsService.addRoomOwner(addOwnerDto, id, businessId);
+  }
+
+  @Patch('/:id/owner')
+  @HttpCode(201)
+  @UseGuards(JwtAuthGuard)
+  updateRoomOwner(@Param('id') id: string, @Body() editOwnerDto: EditOwnerDto) {
+    return this.roomsService.updateRoomOwner(editOwnerDto, id);
   }
 
   @Delete('/:id/owner')
