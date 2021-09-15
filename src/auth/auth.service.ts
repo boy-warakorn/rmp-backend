@@ -16,9 +16,10 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const { username, password } = loginDto;
     const userFound = await this.userService.getUserByUsernameOrEmail(username);
-    const hashPassword = await hash(password, 10);
 
-    if (userFound && compare(hashPassword, userFound[0].password)) {
+    const isPsEqual = await compare(password, userFound[0].password);
+
+    if (userFound && isPsEqual) {
       const token = this.jwtService.sign(
         {
           userId: userFound[0].id,
