@@ -81,7 +81,7 @@ export class RoomsService {
         type: room.type,
         pricePerMonth: room.pricePerMonth,
         purchasePrice: room.purchasePrice,
-        lastMoveAt: room.lastMoveAt
+        lastMoveAt: !room.lastMoveAt
           ? ''
           : dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:MM:ss'),
         unit: room.unit,
