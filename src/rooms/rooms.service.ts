@@ -4,6 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as dayjs from 'dayjs';
+import * as utc from 'dayjs/plugin/utc';
 import { generate } from 'generate-password';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
@@ -13,6 +15,8 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { GetRoomsQueryDto } from './dto/get-rooms-query.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Room } from './entities/room.model';
+
+dayjs.extend(utc);
 
 @Injectable()
 export class RoomsService {
@@ -50,7 +54,17 @@ export class RoomsService {
       });
     }
 
-    return { rooms: rooms };
+    return {
+      rooms: rooms.map((room) => ({
+        roomNumber: room.roomNumber,
+        size: room.size,
+        type: room.type,
+        pricePerMonth: room.pricePerMonth,
+        purchasePrice: room.purchasePrice,
+        lastMoveAt: dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:MM:ss'),
+        unit: room.unit,
+      })),
+    };
   }
 
   async create(createRoomDto: CreateRoomDto, businessId: string) {
@@ -101,9 +115,8 @@ export class RoomsService {
     businessId: string,
   ) {
     const room = await this.roomRepository.findOne(roomNumber);
-
     if (room.userId) {
-      throw new ConflictException();
+      throw new ConflictException('This room already have owner');
     }
     const { name, email, phoneNumber, citizenNumber } = addOwnerDto;
     const userDto = new CreateUserDto();
@@ -120,6 +133,7 @@ export class RoomsService {
     await this.roomRepository.save({
       roomNumber: roomNumber,
       userId: result.id,
+      lastMoveAt: dayjs().format(),
     });
 
     return {

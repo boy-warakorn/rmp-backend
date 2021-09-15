@@ -26,7 +26,7 @@ export class Room {
   @Column({ type: 'double precision' })
   purchasePrice: number;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'timestamptz', nullable: true })
   lastMoveAt: string;
 
   @Column({ type: 'varchar' })
