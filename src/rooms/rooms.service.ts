@@ -38,6 +38,7 @@ export class RoomsService {
         ? {
             name: user.profile.name,
             phoneNumber: user.profile.phoneNumber,
+            citizenNumber: user.profile.citizenNumber,
           }
         : {},
       room: {
@@ -63,6 +64,7 @@ export class RoomsService {
       'size',
       'type',
       'unit',
+      'userId',
     ];
 
     let rooms: Room[];
@@ -86,8 +88,8 @@ export class RoomsService {
         roomNumber: room.roomNumber,
         size: room.size,
         type: room.type,
-        pricePerMonth: room.pricePerMonth,
-        purchasePrice: room.purchasePrice,
+        // @todo will change this to real value
+        contractType: room.userId ? 'purchase' : 'unoccupied',
         lastMoveAt: !room.lastMoveAt
           ? ''
           : dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:MM:ss'),

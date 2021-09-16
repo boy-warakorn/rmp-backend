@@ -71,6 +71,7 @@ export class UsersService {
         email: user.email,
         phoneNumber: user.phoneNumber,
         role: user.role,
+        citizenNumber: user.citizenNumber,
       },
       businessName: businessName,
     };

@@ -76,4 +76,6 @@ export class RoomsController {
   deleteRoomOwner(@Param('id') id: string) {
     return this.roomsService.deleteRoomOwner(id);
   }
+
+  // @Note add getOwner
 }
