@@ -19,9 +19,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('')
-  @UseGuards(JwtAuthGuard)
   async create(
-    @Req() req: Express.Request,
     @Body() createUserDto: CreateUserDto,
   ) {
     await this.usersService.create(createUserDto);
