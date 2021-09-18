@@ -29,6 +29,15 @@ export class RoomsService {
     private readonly userService: UsersService,
   ) {}
 
+  async getRoomNumberByUserId(userId: string) {
+    const room = await this.roomRepository.find({
+      where: [{ userId: userId }],
+    });
+    if (!room) throw new NotFoundException();
+
+    return room[0].roomNumber;
+  }
+
   async getRoom(roomNumber: string) {
     const room = await this.roomRepository.findOne(roomNumber);
 
@@ -53,7 +62,9 @@ export class RoomsService {
         pricePerMonth: room.pricePerMonth,
         purchasePrice: room.purchasePrice,
         unit: room.unit,
-        lastMoveAt: dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:MM:ss'),
+        lastMoveAt: room.lastMoveAt
+          ? dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:MM:ss')
+          : '',
       },
       status: isOccupied ? 'occupied' : 'unoccupied',
     };

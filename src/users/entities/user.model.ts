@@ -5,12 +5,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { hash, compare } from 'bcryptjs';
 import { Room } from 'src/rooms/entities/room.model';
+import { Report } from 'src/reports/entities/report.model';
 
 @Entity()
 @Unique(['email'])
@@ -54,6 +56,10 @@ export class User {
 
   @OneToOne(() => Room, (room) => room.user)
   room: Room;
+
+  @OneToMany(() => Report, (report) => report.room)
+  @JoinColumn()
+  report: Report[];
 
   @BeforeInsert()
   async hashPassword(): Promise<void> {

@@ -51,7 +51,9 @@ export class AccountsService {
         email: result.profile.email,
         phoneNumber: result.profile.phoneNumber,
       },
-      createdAt: result.createdAt,
+      createdAt: result.createdAt
+        ? dayjs(result.createdAt).format('YYYY-MM-DD HH:MM:ss')
+        : '',
     };
   }
 

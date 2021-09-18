@@ -1,4 +1,5 @@
 import { Business } from 'src/business/entities/business.model';
+import { Report } from 'src/reports/entities/report.model';
 import { User } from 'src/users/entities/user.model';
 import {
   PrimaryColumn,
@@ -7,6 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToOne,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -41,6 +43,10 @@ export class Room {
   @ManyToOne(() => Business, (business) => business.room)
   @JoinColumn()
   business: Business;
+
+  @OneToMany(() => Report, (report) => report.room)
+  @JoinColumn()
+  report: Report[];
 
   @OneToOne(() => User, (user) => user.id)
   @JoinColumn()

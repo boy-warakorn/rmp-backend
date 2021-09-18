@@ -1,3 +1,4 @@
+import { Report } from 'src/reports/entities/report.model';
 import { Room } from 'src/rooms/entities/room.model';
 import { User } from 'src/users/entities/user.model';
 import {
@@ -22,4 +23,7 @@ export class Business {
 
   @OneToMany(() => Room, (room) => room.business)
   room: Room[];
+
+  @OneToMany(() => Room, (room) => room.report)
+  report: Report[];
 }
