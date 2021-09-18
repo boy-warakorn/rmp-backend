@@ -45,6 +45,7 @@ export class AccountsService {
       userId: result.id,
       profile: {
         name: result.profile.name,
+        username: result.profile.username,
         role: result.profile.role,
         citizenNumber: result.profile.citizenNumber,
         email: result.profile.email,
