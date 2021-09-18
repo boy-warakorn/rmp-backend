@@ -29,6 +29,9 @@ export class RoomsService {
 
   async getRoom(roomNumber: string) {
     const room = await this.roomRepository.findOne(roomNumber);
+
+    if (!room) throw new NotFoundException();
+
     let user;
     const isOccupied = room.userId !== null;
 
@@ -138,6 +141,14 @@ export class RoomsService {
       roomNumber: roomNumber,
       ...room,
     });
+  }
+
+  async deleteRoom(roomNumber: string) {
+    const room = await this.getRoom(roomNumber);
+    if (room.resident?.citizenNumber) {
+      await this.deleteRoomOwner(roomNumber);
+    }
+    await this.roomRepository.delete(roomNumber);
   }
 
   async updateRoomOwner(editRoomOwner: EditOwnerDto, roomNumber: string) {

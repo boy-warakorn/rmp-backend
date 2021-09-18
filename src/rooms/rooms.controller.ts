@@ -44,6 +44,13 @@ export class RoomsController {
     return this.roomsService.getRoom(id);
   }
 
+  @Delete('/:id')
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  deleteRoom(@Param('id') id: string) {
+    return this.roomsService.deleteRoom(id);
+  }
+
   @Post('/:id/update')
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
