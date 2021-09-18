@@ -155,7 +155,11 @@ export class RoomsService {
 
   async updateRoomOwner(editRoomOwner: EditOwnerDto, roomNumber: string) {
     const room = await this.roomRepository.findOne(roomNumber);
-    await this.userService.updateUserById(room.userId, editRoomOwner);
+    await this.userService.updateUserById(
+      room.userId,
+      editRoomOwner,
+      'resident',
+    );
   }
 
   async addRoomOwner(
@@ -173,6 +177,7 @@ export class RoomsService {
     const { name, email, phoneNumber, citizenNumber } = addOwnerDto;
     const userDto = new CreateUserDto();
     const password = generate({ length: 10 });
+
     userDto.businessId = businessId;
     userDto.citizenNumber = citizenNumber;
     userDto.name = name;
@@ -180,6 +185,13 @@ export class RoomsService {
     userDto.role = 'resident';
     userDto.phoneNumber = phoneNumber;
     userDto.password = password;
+
+    const result = await this.userService.create(userDto);
+    await this.roomRepository.save({
+      roomNumber: roomNumber,
+      userId: result.id,
+      lastMoveAt: result.createdAt,
+    });
 
     const transporter = nodeMailer.createTransport({
       service: 'gmail',
@@ -193,13 +205,6 @@ export class RoomsService {
       to: email,
       subject: 'Your RMP application account',
       html: `<div><h4>Thank you for trusting us!</h4><p>Email: ${userDto.email}</p><p>Password: ${userDto.password}</div>`,
-    });
-
-    const result = await this.userService.create(userDto);
-    await this.roomRepository.save({
-      roomNumber: roomNumber,
-      userId: result.id,
-      lastMoveAt: dayjs().format(),
     });
 
     return {

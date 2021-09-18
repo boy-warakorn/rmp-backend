@@ -5,11 +5,15 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
+import * as dayjs from 'dayjs';
+import * as utc from 'dayjs/plugin/utc';
 import { BusinessService } from 'src/business/business.service';
 import { EditOwnerDto } from 'src/rooms/dto/edit-owner.dto';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.model';
+
+dayjs.extend(utc);
 
 @Injectable()
 export class UsersService {
@@ -33,6 +37,7 @@ export class UsersService {
       throw new ConflictException();
     }
 
+    user.createdAt = dayjs().format();
     user.isDelete = false;
 
     return await this.userRepository.save(user);
@@ -46,8 +51,8 @@ export class UsersService {
     return user;
   }
 
-  async updateUserById(id: string, editOwnerDto: EditOwnerDto) {
-    await this.userRepository.save({ id: id, ...editOwnerDto });
+  async updateUserById(id: string, editOwnerDto: EditOwnerDto, role: string) {
+    await this.userRepository.save({ id: id, ...editOwnerDto, role: role });
   }
 
   async getUser(id: string) {
@@ -74,7 +79,17 @@ export class UsersService {
         citizenNumber: user.citizenNumber,
       },
       businessName: businessName,
+      createdAt: user.createdAt,
     };
+  }
+
+  async getUsers(businessId: string, role: string) {
+    const result = await this.userRepository.find({
+      where: role
+        ? [{ businessId: businessId, role: role }]
+        : [{ businessId: businessId }],
+    });
+    return result;
   }
 
   async deleteUserById(id: string) {

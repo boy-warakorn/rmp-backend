@@ -8,6 +8,7 @@ import { JwtAuthStrategy } from './jwt-auth/jwt-auth.strategy';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { RoomsModule } from './rooms/rooms.module';
+import { AccountsModule } from './accounts/accounts.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { RoomsModule } from './rooms/rooms.module';
     JwtAuthModule,
     AuthModule,
     RoomsModule,
+    AccountsModule,
   ],
 })
 export class AppModule {}

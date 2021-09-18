@@ -7,11 +7,13 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import { hash, compare } from 'bcryptjs';
 import { Room } from 'src/rooms/entities/room.model';
 
 @Entity()
+@Unique(['email'])
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -46,6 +48,9 @@ export class User {
   @ManyToOne(() => Business, (business) => business.user)
   @JoinColumn()
   business: Business;
+
+  @Column({ type: 'timestamptz' })
+  createdAt: string;
 
   @OneToOne(() => Room, (room) => room.user)
   room: Room;
