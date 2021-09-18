@@ -17,6 +17,8 @@ import { GetRoomsQueryDto } from './dto/get-rooms-query.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Room } from './entities/room.model';
 
+const nodeMailer = require('nodemailer');
+
 dayjs.extend(utc);
 
 @Injectable()
@@ -162,6 +164,9 @@ export class RoomsService {
     businessId: string,
   ) {
     const room = await this.roomRepository.findOne(roomNumber);
+    if (!room) {
+      throw new NotFoundException();
+    }
     if (room.userId) {
       throw new ConflictException('This room already have owner');
     }
@@ -175,6 +180,20 @@ export class RoomsService {
     userDto.role = 'resident';
     userDto.phoneNumber = phoneNumber;
     userDto.password = password;
+
+    const transporter = nodeMailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'rmp.management.sys@gmail.com',
+        pass: 'ltmbfxcnjenzhnje',
+      },
+    });
+    await transporter.sendMail({
+      from: 'rmp.management.sys@gmail.com',
+      to: email,
+      subject: 'Your RMP application account',
+      html: `<div><h4>Thank you for trusting us!</h4><p>Email: ${userDto.email}</p><p>Password: ${userDto.password}</div>`,
+    });
 
     const result = await this.userService.create(userDto);
     await this.roomRepository.save({
