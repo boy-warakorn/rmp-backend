@@ -37,6 +37,8 @@ services:
     image: nginx
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt/live/rmp.ryuhub.dev/fullchain.pem:/etc/nginx/certs/fullchain.pem
+      - /etc/letsencrypt/live/rmp.ryuhub.dev/privkey.pem:/etc/nginx/certs/privkey.pem
     networks:
       - app-network
     ports:
