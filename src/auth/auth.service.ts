@@ -13,13 +13,19 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto, isMobile: boolean) {
     const { username, password } = loginDto;
     const userFound = await this.userService.getUserByUsernameOrEmail(username);
+    const roles = isMobile
+      ? ['admin', 'resident', 'condos']
+      : ['condos', 'admin'];
+
+    if (userFound.length <= 0)
+      throw new UnauthorizedException('No username or email in this system');
 
     const isPsEqual = await compare(password, userFound[0].password);
 
-    if (userFound && isPsEqual) {
+    if (isPsEqual && roles.includes(userFound[0].role)) {
       const token = this.jwtService.sign(
         {
           userId: userFound[0].id,

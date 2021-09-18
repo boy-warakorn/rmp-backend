@@ -7,7 +7,12 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('')
-  login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  loginCMS(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto, false);
+  }
+
+  @Post('/mobile')
+  loginMobile(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto, true);
   }
 }

@@ -15,7 +15,12 @@ export class BusinessService {
   async create(createBusinessDto: CreateBusinessDto) {
     const business = plainToClass(Business, createBusinessDto);
 
-    await this.businessRepository.insert(business);
+    const businessResult = await this.businessRepository.save(business);
+
+    return {
+      id: businessResult.id,
+      name: business.name,
+    };
   }
 
   async getAllUserFromBusinessId(id: string) {
