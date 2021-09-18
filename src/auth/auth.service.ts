@@ -17,8 +17,8 @@ export class AuthService {
     const { username, password } = loginDto;
     const userFound = await this.userService.getUserByUsernameOrEmail(username);
     const roles = isMobile
-      ? ['admin', 'resident', 'condos']
-      : ['condos', 'admin'];
+      ? ['admin', 'resident', 'personnel']
+      : ['personnel', 'admin'];
 
     if (userFound.length <= 0)
       throw new UnauthorizedException('No username or email in this system');
