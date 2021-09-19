@@ -236,4 +236,15 @@ export class RoomsService {
     });
     await this.userService.deleteUserById(room.userId);
   }
+
+  async getRoomNumberList(businessId: string) {
+    const roomNumbers = await this.roomRepository.find({
+      select: ['roomNumber'],
+      where: [{ businessId: businessId }],
+    });
+
+    return {
+      roomNumbers: roomNumbers.map((room) => room.roomNumber),
+    };
+  }
 }

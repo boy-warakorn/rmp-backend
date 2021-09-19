@@ -1,3 +1,4 @@
+import { Package } from 'src/packages/entities/package.model';
 import { Report } from 'src/reports/entities/report.model';
 import { Room } from 'src/rooms/entities/room.model';
 import { User } from 'src/users/entities/user.model';
@@ -24,6 +25,9 @@ export class Business {
   @OneToMany(() => Room, (room) => room.business)
   room: Room[];
 
-  @OneToMany(() => Room, (room) => room.report)
+  @OneToMany(() => Report, (report) => report.business)
   report: Report[];
+
+  @OneToMany(() => Package, (packageEle) => packageEle.business)
+  package: Package[];
 }
