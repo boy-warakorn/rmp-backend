@@ -1,4 +1,5 @@
 import { Business } from 'src/business/entities/business.model';
+import { Package } from 'src/packages/entities/package.model';
 import { Report } from 'src/reports/entities/report.model';
 import { User } from 'src/users/entities/user.model';
 import {
@@ -47,6 +48,10 @@ export class Room {
   @OneToMany(() => Report, (report) => report.room)
   @JoinColumn()
   report: Report[];
+
+  @OneToMany(() => Package, (report) => report.room)
+  @JoinColumn()
+  package: Package[];
 
   @OneToOne(() => User, (user) => user.id)
   @JoinColumn()
