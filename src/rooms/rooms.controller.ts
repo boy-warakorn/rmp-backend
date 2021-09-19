@@ -38,6 +38,13 @@ export class RoomsController {
     return this.roomsService.create(createRoomDto, businessId);
   }
 
+  @Get('/id-list')
+  @UseGuards(JwtAuthGuard)
+  getRoomNumberList(@Req() req: Express.Request) {
+    const { businessId } = req.user as any;
+    return this.roomsService.getRoomNumberList(businessId);
+  }
+
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
   getRoom(@Param('id') id: string) {
