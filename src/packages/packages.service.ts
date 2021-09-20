@@ -25,7 +25,6 @@ export class PackagesService {
         result = await this.packageRepository.find({
           where: [
             {
-              status: status,
               roomRoomNumber: roomNumber,
             },
           ],
@@ -44,7 +43,7 @@ export class PackagesService {
 
       let packages = [];
       for await (const packageEle of result) {
-        const room = await this.roomsService.getRoom(roomNumber);
+        const room = await this.roomsService.getRoom(packageEle.roomRoomNumber);
 
         const formattedPackage = {
           id: packageEle.id,
@@ -62,7 +61,6 @@ export class PackagesService {
         };
         packages.push(formattedPackage);
       }
-
       return {
         packages: packages,
       };
