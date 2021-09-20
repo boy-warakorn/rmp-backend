@@ -86,8 +86,8 @@ export class UsersService {
   async getUsers(businessId: string, role: string) {
     const result = await this.userRepository.find({
       where: role
-        ? [{ businessId: businessId, role: role }]
-        : [{ businessId: businessId }],
+        ? [{ businessId: businessId, role: role, isDelete: false }]
+        : [{ businessId: businessId, isDelete: false }],
     });
     return result;
   }
