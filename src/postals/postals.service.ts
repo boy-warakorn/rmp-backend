@@ -1,4 +1,11 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { Repository } from 'typeorm';
@@ -129,7 +136,12 @@ export class PackagesService {
     preparePackage.roomRoomNumber = createPackageDto.roomNumber;
     preparePackage.businessId = businessId;
     preparePackage.status = 'in-storage';
-    console.log(`preparePackage`, preparePackage);
+
+    const room = await this.roomsService.getRoom(createPackageDto.roomNumber);
+
+    if (!room.resident?.citizenNumber) {
+      throw new ForbiddenException();
+    }
 
     await this.packageRepository.save(preparePackage);
   }
