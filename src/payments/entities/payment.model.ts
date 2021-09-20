@@ -31,7 +31,7 @@ export class Payment {
   @Column()
   amount: number;
 
-  @Column()
+  @Column({ type: 'boolean' })
   isRenew: boolean;
 
   @Column({ nullable: true })

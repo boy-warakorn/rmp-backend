@@ -9,6 +9,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import { generate } from 'generate-password';
+import { CreatePaymentDto } from 'src/payments/dto/create-payment.dto';
+import { PaymentsService } from 'src/payments/payments.service';
 import { PackagesService } from 'src/postals/postals.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
@@ -32,6 +34,7 @@ export class RoomsService {
     private readonly userService: UsersService,
     @Inject(forwardRef(() => PackagesService))
     private readonly packageService: PackagesService,
+    private readonly paymentService: PaymentsService,
   ) {}
 
   async getRoomNumberByUserId(userId: string) {
@@ -209,6 +212,25 @@ export class RoomsService {
       userId: result.id,
       lastMoveAt: result.createdAt,
     });
+
+    const commonChargePayment = new CreatePaymentDto();
+    commonChargePayment.amount = this.paymentService.getCommonCharge();
+    commonChargePayment.businessId = businessId;
+    commonChargePayment.isRenew = true;
+    commonChargePayment.roomNumber = roomNumber;
+    commonChargePayment.status = 'in-active';
+    commonChargePayment.type = 'common-charge';
+
+    const rentPayment = new CreatePaymentDto();
+    rentPayment.amount = room.pricePerMonth;
+    rentPayment.businessId = businessId;
+    rentPayment.isRenew = true;
+    rentPayment.roomNumber = roomNumber;
+    rentPayment.status = 'in-active';
+    rentPayment.type = 'rent';
+
+    await this.paymentService.createPayment(commonChargePayment);
+    await this.paymentService.createPayment(rentPayment);
 
     const transporter = nodeMailer.createTransport({
       service: 'gmail',
