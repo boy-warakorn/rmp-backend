@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import { generate } from 'generate-password';
+import { PackagesService } from 'src/postals/postals.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { IsNull, Not, Repository } from 'typeorm';
@@ -27,6 +30,8 @@ export class RoomsService {
     @InjectRepository(Room)
     private roomRepository: Repository<Room>,
     private readonly userService: UsersService,
+    @Inject(forwardRef(() => PackagesService))
+    private readonly packageService: PackagesService,
   ) {}
 
   async getRoomNumberByUserId(userId: string) {
@@ -158,8 +163,9 @@ export class RoomsService {
 
   async deleteRoom(roomNumber: string) {
     const room = await this.getRoom(roomNumber);
+
     if (room.resident?.citizenNumber) {
-      await this.deleteRoomOwner(roomNumber);
+      throw new ConflictException();
     }
     await this.roomRepository.delete(roomNumber);
   }
@@ -226,6 +232,10 @@ export class RoomsService {
 
   async deleteRoomOwner(roomNumber: string) {
     const room = await this.roomRepository.findOne(roomNumber);
+    const packages = await this.packageService.getPackages('', room.roomNumber);
+    if (packages.packages.length > 0) {
+      throw new ConflictException();
+    }
     if (!room) {
       throw new NotFoundException();
     }
