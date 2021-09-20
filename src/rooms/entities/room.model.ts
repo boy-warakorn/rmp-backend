@@ -1,4 +1,5 @@
 import { Business } from 'src/business/entities/business.model';
+import { Payment } from 'src/payments/entities/payments.model';
 import { Package } from 'src/postals/entities/package.model';
 import { Report } from 'src/reports/entities/report.model';
 import { User } from 'src/users/entities/user.model';
@@ -49,9 +50,13 @@ export class Room {
   @JoinColumn()
   report: Report[];
 
-  @OneToMany(() => Package, (report) => report.room)
+  @OneToMany(() => Package, (packageEle) => packageEle.room)
   @JoinColumn()
   package: Package[];
+
+  @OneToMany(() => Payment, (payment) => payment.room)
+  @JoinColumn()
+  payment: Payment[];
 
   @OneToOne(() => User, (user) => user.id)
   @JoinColumn()
