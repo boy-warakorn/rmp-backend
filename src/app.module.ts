@@ -11,6 +11,8 @@ import { AccountsModule } from './accounts/accounts.module';
 import { ReportsModule } from './reports/reports.module';
 import { PostalsModule } from './postals/postals.module';
 import { PaymentsModule } from './payments/payments.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksService } from './tasks/tasks.service';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { PaymentsModule } from './payments/payments.module';
       envFilePath: '.env',
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot(database),
     BusinessModule,
     UsersModule,
@@ -29,5 +32,6 @@ import { PaymentsModule } from './payments/payments.module';
     PostalsModule,
     PaymentsModule,
   ],
+  providers: [TasksService],
 })
 export class AppModule {}

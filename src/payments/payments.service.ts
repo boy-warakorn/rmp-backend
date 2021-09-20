@@ -25,6 +25,15 @@ export class PaymentsService {
     await this.paymentRepository.save(payment);
   }
 
+  async renewAllPayment() {
+    await this.paymentRepository
+      .createQueryBuilder()
+      .update()
+      .set({ status: 'active' })
+      .where(`status = :status`, { status: 'in-active' })
+      .execute();
+  }
+
   getCommonCharge() {
     return 3000;
   }
