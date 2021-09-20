@@ -14,7 +14,7 @@ import { JwtAuthGuard } from 'src/jwt-auth/jwt-auth.guard';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { EditPackageDto } from './dto/edit-package.dto';
 import { GetPackageQuery } from './dto/get-package-query.dto';
-import { PackagesService } from './packages.service';
+import { PackagesService } from './postals.service';
 
 @Controller('packages')
 export class PackagesController {

@@ -1,4 +1,4 @@
-import { Package } from 'src/packages/entities/package.model';
+import { Package } from 'src/postals/entities/package.model';
 import { Report } from 'src/reports/entities/report.model';
 import { Room } from 'src/rooms/entities/room.model';
 import { User } from 'src/users/entities/user.model';

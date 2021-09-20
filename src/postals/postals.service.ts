@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { Repository } from 'typeorm';
@@ -15,6 +15,7 @@ export class PackagesService {
   constructor(
     @InjectRepository(Package)
     private packageRepository: Repository<Package>,
+    @Inject(forwardRef(() => RoomsService))
     private roomsService: RoomsService,
   ) {}
 
