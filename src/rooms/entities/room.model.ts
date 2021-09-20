@@ -1,5 +1,5 @@
 import { Business } from 'src/business/entities/business.model';
-import { Payment } from 'src/payments/entities/payments.model';
+import { Payment } from 'src/payments/entities/payment.model';
 import { Package } from 'src/postals/entities/package.model';
 import { Report } from 'src/reports/entities/report.model';
 import { User } from 'src/users/entities/user.model';

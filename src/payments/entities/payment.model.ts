@@ -1,9 +1,16 @@
 import { Business } from 'src/business/entities/business.model';
 import { Room } from 'src/rooms/entities/room.model';
-import { Column, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
+@Entity()
 export class Payment {
-  @Column({ type: 'uuid' })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
