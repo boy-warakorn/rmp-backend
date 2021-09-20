@@ -250,7 +250,7 @@ export class RoomsService {
   async getRoomNumberList(businessId: string) {
     const roomNumbers = await this.roomRepository.find({
       select: ['roomNumber'],
-      where: [{ businessId: businessId }],
+      where: [{ businessId: businessId, userId: Not(IsNull()) }],
     });
 
     return {
