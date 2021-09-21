@@ -34,6 +34,7 @@ export class PaymentsService {
     payment.roomRoomNumber = createPaymentDto.roomNumber;
     payment.status = createPaymentDto.status;
     payment.type = createPaymentDto.type;
+    payment.issuedAt = dayjs().format();
 
     await this.paymentRepository.save(payment);
   }
@@ -76,18 +77,45 @@ export class PaymentsService {
         amount: payment.amount,
         type: payment.type,
         status: payment.status,
+        issuedAt: payment.issuedAt
+          ? dayjs(payment.issuedAt).format('YYYY-MM-DD HH:MM:ss')
+          : '',
+        confirmedAt: payment.confirmedAt
+          ? dayjs(payment.confirmedAt).format('YYYY-MM-DD HH:MM:ss')
+          : '',
       })),
     };
   }
 
   async renewAllPayment() {
-    await this.paymentRepository
-      .createQueryBuilder()
-      .update()
-      .set({ status: 'active' })
-      .where(`status = :status`, { status: 'in-active' })
-      .andWhere(`isRenew = :isRenew`, { isRenew: true })
-      .execute();
+    const rooms = await this.roomService.getRoomsForRenewPayment();
+
+    for await (const room of rooms) {
+      const payments = await this.paymentRepository.find({
+        where: {
+          roomRoomNumber: room.roomNumber,
+        },
+      });
+      if (payments.length < 1) {
+        const commonChargePayment = new CreatePaymentDto();
+        commonChargePayment.amount = this.getCommonCharge();
+        commonChargePayment.businessId = room.businessId;
+        commonChargePayment.isRenew = true;
+        commonChargePayment.roomNumber = room.roomNumber;
+        commonChargePayment.status = 'active';
+        commonChargePayment.type = 'common-charge';
+        const rentPayment = new CreatePaymentDto();
+        rentPayment.amount = room.pricePerMonth;
+        rentPayment.businessId = room.businessId;
+        rentPayment.isRenew = true;
+        rentPayment.roomNumber = room.roomNumber;
+        rentPayment.status = 'active';
+        rentPayment.type = 'rent';
+
+        await this.createPayment(commonChargePayment);
+        await this.createPayment(rentPayment);
+      }
+    }
   }
 
   async paySpecificPayment(id: string, payDto: PayPaymentDto) {
@@ -115,18 +143,6 @@ export class PaymentsService {
       confirmedAt: dayjs().format(),
       status: 'complete',
     });
-    const payment = await this.paymentRepository.findOne(id);
-    if (payment.isRenew) {
-      const preparePayment = new Payment();
-      preparePayment.businessId = payment.businessId;
-      preparePayment.isRenew = true;
-      preparePayment.roomRoomNumber = payment.roomRoomNumber;
-      preparePayment.amount = payment.amount;
-      preparePayment.type = payment.type;
-      preparePayment.status = 'in-active';
-
-      await this.paymentRepository.save(preparePayment);
-    }
   }
 
   getCommonCharge() {

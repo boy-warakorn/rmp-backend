@@ -28,6 +28,9 @@ export class Payment {
   @Column({ type: 'timestamptz', nullable: true })
   confirmedAt: string;
 
+  @Column({ type: 'timestamptz' })
+  issuedAt: string;
+
   @Column()
   status: string;
 
