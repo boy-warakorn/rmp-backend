@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
   Post,
   Query,
@@ -46,6 +47,7 @@ export class PaymentsController {
   }
 
   @Post('/:id')
+  @HttpCode(204)
   @UseGuards(JwtAuthGuard)
   paySpecificPayment(
     @Param('id') id: string,
@@ -55,6 +57,7 @@ export class PaymentsController {
   }
 
   @Post('/:id/confirm')
+  @HttpCode(204)
   @UseGuards(JwtAuthGuard)
   confirmPayment(@Param('id') id: string) {
     return this.paymentsService.confirmPayment(id);

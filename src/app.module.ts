@@ -13,6 +13,7 @@ import { PostalsModule } from './postals/postals.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksService } from './tasks/tasks.service';
+import { ContactsModule } from './contacts/contacts.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { TasksService } from './tasks/tasks.service';
     ReportsModule,
     PostalsModule,
     PaymentsModule,
+    ContactsModule,
   ],
   providers: [TasksService],
 })
