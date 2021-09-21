@@ -19,6 +19,8 @@ import { AddOwnerDto } from './dto/add-owner.dto';
 import { GetRoomsQueryDto } from './dto/get-rooms-query.dto';
 import { EditOwnerDto } from './dto/edit-owner.dto';
 
+// @todo implement business id to every get method
+
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
