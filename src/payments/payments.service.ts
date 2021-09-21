@@ -51,7 +51,20 @@ export class PaymentsService {
         userId,
       );
       payments = await this.paymentRepository.find({
-        roomRoomNumber: roomNumberRes,
+        where: [
+          {
+            roomRoomNumber: roomNumberRes,
+            status: 'active',
+          },
+          {
+            roomRoomNumber: roomNumberRes,
+            status: 'pending',
+          },
+          {
+            roomRoomNumber: roomNumberRes,
+            status: 'complete',
+          },
+        ],
       });
     } else if (roomNumber) {
       payments = await this.paymentRepository.find({
