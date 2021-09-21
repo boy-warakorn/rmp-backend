@@ -10,6 +10,9 @@ import { RoomsModule } from './rooms/rooms.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { ReportsModule } from './reports/reports.module';
 import { PostalsModule } from './postals/postals.module';
+import { PaymentsModule } from './payments/payments.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksService } from './tasks/tasks.service';
 
 @Module({
   imports: [
@@ -17,6 +20,7 @@ import { PostalsModule } from './postals/postals.module';
       envFilePath: '.env',
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot(database),
     BusinessModule,
     UsersModule,
@@ -26,6 +30,8 @@ import { PostalsModule } from './postals/postals.module';
     AccountsModule,
     ReportsModule,
     PostalsModule,
+    PaymentsModule,
   ],
+  providers: [TasksService],
 })
 export class AppModule {}

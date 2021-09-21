@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import { generate } from 'generate-password';
+import { PaymentsService } from 'src/payments/payments.service';
 import { PackagesService } from 'src/postals/postals.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
@@ -32,13 +33,15 @@ export class RoomsService {
     private readonly userService: UsersService,
     @Inject(forwardRef(() => PackagesService))
     private readonly packageService: PackagesService,
+    @Inject(forwardRef(() => PaymentsService))
+    private readonly paymentService: PaymentsService,
   ) {}
 
   async getRoomNumberByUserId(userId: string) {
     const room = await this.roomRepository.find({
       where: [{ userId: userId }],
     });
-    if (!room) throw new NotFoundException();
+    if (room.length < 1) throw new NotFoundException();
 
     return room[0].roomNumber;
   }
@@ -73,6 +76,13 @@ export class RoomsService {
       },
       status: isOccupied ? 'occupied' : 'unoccupied',
     };
+  }
+
+  async getRoomsForRenewPayment() {
+    return await this.roomRepository.find({
+      select: ['roomNumber', 'pricePerMonth', 'businessId'],
+      where: [{ userId: Not(IsNull()) }],
+    });
   }
 
   async getRooms(getRoomsQueryDto: GetRoomsQueryDto, businessId: string) {
@@ -230,10 +240,16 @@ export class RoomsService {
     };
   }
 
-  async deleteRoomOwner(roomNumber: string) {
+  async deleteRoomOwner(roomNumber: string, businessId: string) {
     const room = await this.roomRepository.findOne(roomNumber);
     const packages = await this.packageService.getPackages('', room.roomNumber);
-    if (packages.packages.length > 0) {
+    const payments = await this.paymentService.getPayments(
+      businessId,
+      '',
+      room.roomNumber,
+      '',
+    );
+    if (packages.packages.length > 0 || payments.payments.length > 0) {
       throw new ConflictException();
     }
     if (!room) {

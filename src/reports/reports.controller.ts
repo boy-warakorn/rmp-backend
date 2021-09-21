@@ -14,6 +14,8 @@ import { GetReportsQueryDto } from './dto/get-reports-query.dto';
 import { ReplyReportDto } from './dto/reply-report.dto';
 import { ReportsService } from './reports.service';
 
+// @todo implement business id to every get method
+
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}

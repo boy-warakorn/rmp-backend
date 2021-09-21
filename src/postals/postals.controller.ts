@@ -16,6 +16,8 @@ import { EditPackageDto } from './dto/edit-package.dto';
 import { GetPackageQuery } from './dto/get-package-query.dto';
 import { PackagesService } from './postals.service';
 
+// @todo implement business id to every get method
+
 @Controller('packages')
 export class PackagesController {
   constructor(private readonly packagesService: PackagesService) {}
