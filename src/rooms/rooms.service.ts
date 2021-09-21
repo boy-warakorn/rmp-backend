@@ -253,10 +253,16 @@ export class RoomsService {
     };
   }
 
-  async deleteRoomOwner(roomNumber: string) {
+  async deleteRoomOwner(roomNumber: string, businessId: string) {
     const room = await this.roomRepository.findOne(roomNumber);
     const packages = await this.packageService.getPackages('', room.roomNumber);
-    if (packages.packages.length > 0) {
+    const payments = await this.paymentService.getPayments(
+      businessId,
+      '',
+      room.roomNumber,
+      '',
+    );
+    if (packages.packages.length > 0 || payments.payments.length > 0) {
       throw new ConflictException();
     }
     if (!room) {

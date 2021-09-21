@@ -89,8 +89,9 @@ export class RoomsController {
   @Delete('/:id/owner')
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
-  deleteRoomOwner(@Param('id') id: string) {
-    return this.roomsService.deleteRoomOwner(id);
+  deleteRoomOwner(@Param('id') id: string, @Req() req: Express.Request) {
+    const { businessId } = req.user as any;
+    return this.roomsService.deleteRoomOwner(id, businessId);
   }
 
   // @Note add getOwner
