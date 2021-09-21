@@ -25,6 +25,9 @@ export class Contact {
   address: string;
 
   @Column()
+  email: string;
+
+  @Column()
   businessId: string;
 
   @ManyToOne(() => Business, (business) => business.payment)

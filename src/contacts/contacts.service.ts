@@ -52,6 +52,7 @@ export class ContactsService {
         role: contact.role,
         phoneNumber: contact.phoneNumber,
         address: contact.address,
+        email: contact.email,
       };
     } catch (error) {
       throw error;

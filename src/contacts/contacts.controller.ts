@@ -35,6 +35,12 @@ export class ContactsController {
     return this.contactsService.getContacts(businessId);
   }
 
+  @Get('/:id')
+  @UseGuards(JwtAuthGuard)
+  getContact(@Param('id') id: string) {
+    return this.contactsService.getContact(id);
+  }
+
   @Delete('/:id')
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
