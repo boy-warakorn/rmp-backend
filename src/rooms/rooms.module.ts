@@ -12,7 +12,7 @@ import { PaymentsModule } from 'src/payments/payments.module';
     TypeOrmModule.forFeature([Room]),
     UsersModule,
     forwardRef(() => PostalsModule),
-    PaymentsModule,
+    forwardRef(() => PaymentsModule),
   ],
   controllers: [RoomsController],
   providers: [RoomsService],

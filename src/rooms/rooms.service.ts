@@ -34,6 +34,7 @@ export class RoomsService {
     private readonly userService: UsersService,
     @Inject(forwardRef(() => PackagesService))
     private readonly packageService: PackagesService,
+    @Inject(forwardRef(() => PaymentsService))
     private readonly paymentService: PaymentsService,
   ) {}
 
@@ -41,7 +42,7 @@ export class RoomsService {
     const room = await this.roomRepository.find({
       where: [{ userId: userId }],
     });
-    if (!room) throw new NotFoundException();
+    if (room.length < 1) throw new NotFoundException();
 
     return room[0].roomNumber;
   }
