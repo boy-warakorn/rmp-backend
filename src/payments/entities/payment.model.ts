@@ -22,6 +22,9 @@ export class Payment {
   @Column()
   businessId: string;
 
+  @Column({ type: 'timestamptz', nullable: true })
+  paidAt: string;
+
   @Column()
   status: string;
 

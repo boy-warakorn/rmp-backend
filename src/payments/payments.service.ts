@@ -31,6 +31,7 @@ export class PaymentsService {
       .update()
       .set({ status: 'active' })
       .where(`status = :status`, { status: 'in-active' })
+      .andWhere(`isRenew = :isRenew`, { isRenew: true })
       .execute();
   }
 
