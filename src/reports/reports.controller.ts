@@ -53,7 +53,7 @@ export class ReportsController {
 
   @Post('/:id/reply')
   @UseGuards(JwtAuthGuard)
-  async replyReport(@Param('id') id: string, replyReportDto: ReplyReportDto) {
+  async replyReport(@Param('id') id: string,@Body() replyReportDto: ReplyReportDto) {
     return await this.reportsService.replyReport(replyReportDto, id);
   }
 
