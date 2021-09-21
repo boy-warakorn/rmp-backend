@@ -35,6 +35,9 @@ export class User {
   @Column()
   role: string;
 
+  @Column({ nullable: true })
+  deviceId: string;
+
   @Column()
   email: string;
 
