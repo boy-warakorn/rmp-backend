@@ -93,9 +93,7 @@ export class UsersService {
   }
 
   async deleteUserById(id: string) {
-    this.userRepository.save({
-      id: id,
-      isDelete: true,
-    });
+    // Force Hard delele
+    await this.userRepository.delete(id);
   }
 }

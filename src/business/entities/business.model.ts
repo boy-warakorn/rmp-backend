@@ -1,3 +1,4 @@
+import { Payment } from 'src/payments/entities/payment.model';
 import { Package } from 'src/postals/entities/package.model';
 import { Report } from 'src/reports/entities/report.model';
 import { Room } from 'src/rooms/entities/room.model';
@@ -30,4 +31,7 @@ export class Business {
 
   @OneToMany(() => Package, (packageEle) => packageEle.business)
   package: Package[];
+
+  @OneToMany(() => Payment, (payment) => payment.business)
+  payment: Payment[];
 }

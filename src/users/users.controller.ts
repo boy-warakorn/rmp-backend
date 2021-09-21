@@ -14,6 +14,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
 import { JwtAuthGuard } from 'src/jwt-auth/jwt-auth.guard';
 
+// @todo implement business id to every get method
+
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
