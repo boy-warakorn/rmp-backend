@@ -29,7 +29,16 @@ export class PackagesService {
   async getPackages(status: string, roomNumber: string) {
     try {
       let result;
-      if (roomNumber) {
+      if (roomNumber && status) {
+        result = await this.packageRepository.find({
+          where: [
+            {
+              roomRoomNumber: roomNumber,
+              status: status,
+            },
+          ],
+        });
+      } else if (roomNumber) {
         result = await this.packageRepository.find({
           where: [
             {

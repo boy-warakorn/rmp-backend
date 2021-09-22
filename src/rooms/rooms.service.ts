@@ -114,18 +114,45 @@ export class RoomsService {
       });
     }
 
+    const formattedRooms = [];
+    for await (const room of rooms) {
+      let formattedRoom: any = {};
+
+      formattedRoom.roomNumber = room.roomNumber;
+      formattedRoom.size = room.size;
+      formattedRoom.type = room.type;
+      // @todo will change this to real value
+      formattedRoom.contractType = room.userId ? 'rent' : 'unoccupied';
+      formattedRoom.lastMoveAt = !room.lastMoveAt
+        ? ''
+        : dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:MM:ss');
+      formattedRoom.unit = room.unit;
+      formattedRoom.paymentDues = 0;
+      formattedRoom.packageRemaining = 0;
+
+      if (room.userId) {
+        const payments = await this.paymentService.getPayments(
+          businessId,
+          '',
+          room.roomNumber,
+          '',
+        );
+        const packages = await this.packageService.getPackages(
+          'in-storage',
+          room.roomNumber,
+        );
+        const overduePayments = payments.payments.filter(
+          (curPay) => curPay.status === 'active',
+        );
+
+        formattedRoom.paymentDues = overduePayments.length;
+        formattedRoom.packageRemaining = packages.packages.length;
+      }
+      formattedRooms.push(formattedRoom);
+    }
+
     return {
-      rooms: rooms.map((room) => ({
-        roomNumber: room.roomNumber,
-        size: room.size,
-        type: room.type,
-        // @todo will change this to real value
-        contractType: room.userId ? 'purchase' : 'unoccupied',
-        lastMoveAt: !room.lastMoveAt
-          ? ''
-          : dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:MM:ss'),
-        unit: room.unit,
-      })),
+      rooms: formattedRooms,
     };
   }
 
