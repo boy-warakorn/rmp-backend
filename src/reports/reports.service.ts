@@ -117,4 +117,12 @@ export class ReportsService {
       resolvedDate: dayjs().format(),
     });
   }
+
+  async getPendingReport(businessId: string) {
+    return {
+      count: await this.reportRepository.count({
+        where: [{ status: 'pending', businessId: businessId }],
+      }),
+    };
+  }
 }

@@ -40,6 +40,13 @@ export class ReportsController {
     return await this.reportsService.getReports(query.status, false, '');
   }
 
+  @Get('/pending')
+  @UseGuards(JwtAuthGuard)
+  async getPendingReports(@Req() req: Express.Request) {
+    const { businessId } = req.user as any;
+    return await this.reportsService.getPendingReport(businessId);
+  }
+
   @Get('/resident')
   @UseGuards(JwtAuthGuard)
   async getReportsByResident(@Req() req: Express.Request) {
@@ -55,7 +62,10 @@ export class ReportsController {
 
   @Post('/:id/reply')
   @UseGuards(JwtAuthGuard)
-  async replyReport(@Param('id') id: string,@Body() replyReportDto: ReplyReportDto) {
+  async replyReport(
+    @Param('id') id: string,
+    @Body() replyReportDto: ReplyReportDto,
+  ) {
     return await this.reportsService.replyReport(replyReportDto, id);
   }
 
