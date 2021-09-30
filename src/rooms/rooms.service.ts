@@ -98,19 +98,18 @@ export class RoomsService {
       'userId',
     ];
 
-    let rooms: Room[];
-
-    rooms = await this.roomRepository.find({
+    const rooms = await this.roomRepository.find({
       select: selectCondition,
-      where: {
-        businessId: businessId,
-        userId: filter_tab
-          ? filter_tab === 'unoccupied'
-            ? IsNull()
-            : Not(IsNull())
-          : Not(IsNull()),
-        roomNumber: roomNumber ?? Not(IsNull()),
-      },
+      where: filter_tab
+        ? {
+            businessId: businessId,
+            userId: filter_tab === 'unoccupied' ? IsNull() : Not(IsNull()),
+            roomNumber: roomNumber ?? Not(IsNull()),
+          }
+        : {
+            businessId: businessId,
+            roomNumber: roomNumber ?? Not(IsNull()),
+          },
     });
 
     const formattedRooms = [];

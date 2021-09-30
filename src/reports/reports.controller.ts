@@ -37,7 +37,7 @@ export class ReportsController {
   @Get('')
   @UseGuards(JwtAuthGuard)
   async getReports(@Query() query: GetReportsQueryDto) {
-    return await this.reportsService.getReports(query.status, false, '');
+    return await this.reportsService.getReports(query, false, '');
   }
 
   @Get('/pending')
@@ -51,7 +51,7 @@ export class ReportsController {
   @UseGuards(JwtAuthGuard)
   async getReportsByResident(@Req() req: Express.Request) {
     const { id } = req.user as any;
-    return await this.reportsService.getReports('', true, id);
+    return await this.reportsService.getReports({} as any, true, id);
   }
 
   @Get('/:id')

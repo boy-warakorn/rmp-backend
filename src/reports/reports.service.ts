@@ -8,6 +8,7 @@ import { Report } from './entities/report.model';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import { ReplyReportDto } from './dto/reply-report.dto';
+import { GetReportsQueryDto } from './dto/get-reports-query.dto';
 
 dayjs.extend(utc);
 
@@ -37,13 +38,16 @@ export class ReportsService {
     await this.reportRepository.save(report);
   }
 
-  async getReports(status: string, isResident: boolean, userId: string) {
-    let reports;
-
-    reports = await this.reportRepository.find({
+  async getReports(
+    query: GetReportsQueryDto,
+    isResident: boolean,
+    userId: string,
+  ) {
+    const reports = await this.reportRepository.find({
       where: {
-        status: status ?? Not(IsNull()),
+        status: query.status ?? Not(IsNull()),
         userId: isResident ? userId : Not(IsNull()),
+        roomRoomNumber: query.roomNumber ?? Not(IsNull()),
       },
     });
 
