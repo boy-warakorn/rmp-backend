@@ -230,7 +230,8 @@ export class RoomsService {
     }
     const { name, email, phoneNumber, citizenNumber } = addOwnerDto;
     const userDto = new CreateUserDto();
-    const password = generate({ length: 10 });
+    // const password = generate({ length: 10 });
+    const password = '123456';
 
     userDto.businessId = businessId;
     userDto.citizenNumber = citizenNumber;
