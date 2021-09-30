@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Room } from 'src/rooms/entities/room.model';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { UsersService } from 'src/users/users.service';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { CreateReportDto } from './dto/create-report.dto';
 import { Report } from './entities/report.model';
 import * as dayjs from 'dayjs';
@@ -40,19 +39,13 @@ export class ReportsService {
 
   async getReports(status: string, isResident: boolean, userId: string) {
     let reports;
-    if (status && !isResident) {
-      reports = await this.reportRepository.find({
-        where: [{ status: status }],
-      });
-    } else {
-      reports = await this.reportRepository.find();
-    }
 
-    if (isResident) {
-      reports = await this.reportRepository.find({
-        where: [{ userId: userId }],
-      });
-    }
+    reports = await this.reportRepository.find({
+      where: {
+        status: status ?? Not(IsNull()),
+        userId: isResident ? userId : Not(IsNull()),
+      },
+    });
 
     let result = [];
     for await (const report of reports) {

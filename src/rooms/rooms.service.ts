@@ -86,7 +86,7 @@ export class RoomsService {
   }
 
   async getRooms(getRoomsQueryDto: GetRoomsQueryDto, businessId: string) {
-    const { filter_tab } = getRoomsQueryDto;
+    const { filter_tab, roomNumber } = getRoomsQueryDto;
     const selectCondition: (keyof Room)[] = [
       'lastMoveAt',
       'pricePerMonth',
@@ -99,20 +99,19 @@ export class RoomsService {
     ];
 
     let rooms: Room[];
-    if (!filter_tab) {
-      rooms = await this.roomRepository.find({
-        select: selectCondition,
-        where: { businessId: businessId },
-      });
-    } else {
-      rooms = await this.roomRepository.find({
-        select: selectCondition,
-        where: {
-          businessId: businessId,
-          userId: filter_tab === 'unoccupied' ? IsNull() : Not(IsNull()),
-        },
-      });
-    }
+
+    rooms = await this.roomRepository.find({
+      select: selectCondition,
+      where: {
+        businessId: businessId,
+        userId: filter_tab
+          ? filter_tab === 'unoccupied'
+            ? IsNull()
+            : Not(IsNull())
+          : Not(IsNull()),
+        roomNumber: roomNumber ?? Not(IsNull()),
+      },
+    });
 
     const formattedRooms = [];
     for await (const room of rooms) {
