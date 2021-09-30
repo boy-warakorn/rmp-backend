@@ -174,7 +174,7 @@ export class PackagesService {
   async confirmDeliver(packageId: string) {
     const confirmPackage = {
       deliveredAt: dayjs().format(),
-      status: 'delivered',
+      status: 'received',
     };
 
     await this.packageRepository.save({ id: packageId, ...confirmPackage });
