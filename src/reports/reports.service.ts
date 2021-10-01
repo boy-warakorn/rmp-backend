@@ -68,6 +68,7 @@ export class ReportsService {
         title: report.title,
         detail: report.detail,
         status: report.status,
+        resolvedBy: report.resolveBy,
       };
       result.push(formattedReport);
     }
@@ -88,6 +89,8 @@ export class ReportsService {
         title: report.title,
         detail: report.detail,
         respondDetail: report.respondDetail ?? '',
+        resolveDetail: report.resolveDetail ?? '',
+        resolveBy: report.resolveBy,
       },
       roomNumber: report.roomRoomNumber,
       requestedDate: report?.requestedDate
