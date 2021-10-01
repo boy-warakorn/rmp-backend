@@ -98,5 +98,13 @@ export class RoomsController {
     return this.roomsService.deleteRoomOwner(id, businessId);
   }
 
+  @Delete('/:id/owner/force')
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  forceDeleteRoom(@Param('id') id: string, @Req() req: Express.Request) {
+    const { businessId } = req.user as any;
+    return this.roomsService.forceDeleteRoomOwner(id, businessId);
+  }
+
   // @Note add getOwner
 }

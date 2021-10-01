@@ -294,6 +294,29 @@ export class RoomsService {
     await this.userService.deleteUserById(room.userId);
   }
 
+  async forceDeleteRoomOwner(roomNumber: string, businessId: string) {
+    const room = await this.roomRepository.findOne(roomNumber);
+    const packages = await this.packageService.getPackages('', room.roomNumber);
+    const payments = await this.paymentService.getPayments(
+      businessId,
+      '',
+      room.roomNumber,
+      '',
+    );
+
+    for await (const postal of packages.packages) {
+      await this.packageService.deletePackage(postal.id);
+    }
+    for await (const payment of payments.payments) {
+      await this.paymentService.deletePayment(payment.id);
+    }
+    await this.roomRepository.save({
+      roomNumber: roomNumber,
+      userId: null,
+    });
+    await this.userService.deleteUserById(room.userId);
+  }
+
   async getRoomNumberList(businessId: string, query: GetRoomIDsQueryDto) {
     let roomNumbers: Room[];
 
