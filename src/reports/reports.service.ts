@@ -9,6 +9,7 @@ import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import { ReplyReportDto } from './dto/reply-report.dto';
 import { GetReportsQueryDto } from './dto/get-reports-query.dto';
+import { ResolveReportDto } from './dto/resolve-report.dto';
 
 dayjs.extend(utc);
 
@@ -107,11 +108,13 @@ export class ReportsService {
     });
   }
 
-  async resolveReport(id: string) {
+  async resolveReport(id: string, resolveReportDto: ResolveReportDto) {
     await this.reportRepository.save({
       id: id,
       status: 'resolved',
       resolvedDate: dayjs().format(),
+      resolveDetail: resolveReportDto.detail,
+      resolveBy: resolveReportDto.resolveBy,
     });
   }
 

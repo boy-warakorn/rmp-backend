@@ -24,6 +24,13 @@ export class Report {
   status: string;
 
   @Column({ nullable: true })
+  resolveDetail: string;
+
+  @Column({ nullable: true })
+  // condos personnel or resident
+  resolveBy: string;
+
+  @Column({ nullable: true })
   respondDetail: string;
 
   @Column({ type: 'timestamptz' })

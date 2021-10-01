@@ -12,6 +12,7 @@ import { JwtAuthGuard } from 'src/jwt-auth/jwt-auth.guard';
 import { CreateReportDto } from './dto/create-report.dto';
 import { GetReportsQueryDto } from './dto/get-reports-query.dto';
 import { ReplyReportDto } from './dto/reply-report.dto';
+import { ResolveReportDto } from './dto/resolve-report.dto';
 import { ReportsService } from './reports.service';
 
 // @todo implement business id to every get method
@@ -71,7 +72,10 @@ export class ReportsController {
 
   @Post('/:id/resolve')
   @UseGuards(JwtAuthGuard)
-  async resolveReport(@Param('id') id: string) {
-    return await this.reportsService.resolveReport(id);
+  async resolveReport(
+    @Param('id') id: string,
+    @Body() resolveReportDto: ResolveReportDto,
+  ) {
+    return await this.reportsService.resolveReport(id, resolveReportDto);
   }
 }
