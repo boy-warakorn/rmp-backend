@@ -147,7 +147,11 @@ export class RoomsService {
         formattedRoom.paymentDues = overduePayments.length;
         formattedRoom.packageRemaining = packages.packages.length;
       }
-      formattedRooms.push(formattedRoom);
+      if (filter_tab !== 'overdued') {
+        formattedRooms.push(formattedRoom);
+      } else if (formattedRoom.paymentDues) {
+        formattedRooms.push(formattedRoom);
+      }
     }
 
     return {

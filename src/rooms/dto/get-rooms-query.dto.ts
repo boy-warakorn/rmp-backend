@@ -1,4 +1,4 @@
 export class GetRoomsQueryDto {
-  filter_tab: 'unoccupied' | 'occupied';
+  filter_tab: 'unoccupied' | 'occupied' | 'overdued';
   roomNumber: string;
 }
