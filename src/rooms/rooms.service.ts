@@ -17,6 +17,7 @@ import { IsNull, Not, Repository } from 'typeorm';
 import { AddOwnerDto } from './dto/add-owner.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { EditOwnerDto } from './dto/edit-owner.dto';
+import { GetRoomIDsQueryDto } from './dto/get-room-ids-query.dto';
 import { GetRoomsQueryDto } from './dto/get-rooms-query.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Room } from './entities/room.model';
@@ -86,7 +87,7 @@ export class RoomsService {
   }
 
   async getRooms(getRoomsQueryDto: GetRoomsQueryDto, businessId: string) {
-    const { filter_tab } = getRoomsQueryDto;
+    const { filter_tab, roomNumber } = getRoomsQueryDto;
     const selectCondition: (keyof Room)[] = [
       'lastMoveAt',
       'pricePerMonth',
@@ -98,21 +99,19 @@ export class RoomsService {
       'userId',
     ];
 
-    let rooms: Room[];
-    if (!filter_tab) {
-      rooms = await this.roomRepository.find({
-        select: selectCondition,
-        where: { businessId: businessId },
-      });
-    } else {
-      rooms = await this.roomRepository.find({
-        select: selectCondition,
-        where: {
-          businessId: businessId,
-          userId: filter_tab === 'unoccupied' ? IsNull() : Not(IsNull()),
-        },
-      });
-    }
+    const rooms = await this.roomRepository.find({
+      select: selectCondition,
+      where: filter_tab
+        ? {
+            businessId: businessId,
+            userId: filter_tab === 'unoccupied' ? IsNull() : Not(IsNull()),
+            roomNumber: roomNumber ?? Not(IsNull()),
+          }
+        : {
+            businessId: businessId,
+            roomNumber: roomNumber ?? Not(IsNull()),
+          },
+    });
 
     const formattedRooms = [];
     for await (const room of rooms) {
@@ -148,7 +147,11 @@ export class RoomsService {
         formattedRoom.paymentDues = overduePayments.length;
         formattedRoom.packageRemaining = packages.packages.length;
       }
-      formattedRooms.push(formattedRoom);
+      if (filter_tab !== 'overdued') {
+        formattedRooms.push(formattedRoom);
+      } else if (formattedRoom.paymentDues) {
+        formattedRooms.push(formattedRoom);
+      }
     }
 
     return {
@@ -230,7 +233,8 @@ export class RoomsService {
     }
     const { name, email, phoneNumber, citizenNumber } = addOwnerDto;
     const userDto = new CreateUserDto();
-    const password = generate({ length: 10 });
+    // const password = generate({ length: 10 });
+    const password = '123456';
 
     userDto.businessId = businessId;
     userDto.citizenNumber = citizenNumber;
@@ -255,10 +259,10 @@ export class RoomsService {
       },
     });
     await transporter.sendMail({
-      from: 'rmp.management.sys@gmail.com',
+      from: 'RMP Management Automatic Bot <rmp.management.sys@gmail.com>',
       to: email,
       subject: 'Your RMP application account',
-      html: `<div><h4>Thank you for trusting us!</h4><p>Email: ${userDto.email}</p><p>Password: ${userDto.password}</div>`,
+      html: `<div><h4>Thank you for trusting us!</h4><h3>This is account for login to our system</h3><p>Email: ${userDto.email}</p><p>Password: ${userDto.password}</div>`,
     });
 
     return {
@@ -290,11 +294,43 @@ export class RoomsService {
     await this.userService.deleteUserById(room.userId);
   }
 
-  async getRoomNumberList(businessId: string) {
-    const roomNumbers = await this.roomRepository.find({
-      select: ['roomNumber'],
-      where: [{ businessId: businessId, userId: Not(IsNull()) }],
+  async forceDeleteRoomOwner(roomNumber: string, businessId: string) {
+    const room = await this.roomRepository.findOne(roomNumber);
+    const packages = await this.packageService.getPackages('', room.roomNumber);
+    const payments = await this.paymentService.getPayments(
+      businessId,
+      '',
+      room.roomNumber,
+      '',
+    );
+
+    for await (const postal of packages.packages) {
+      await this.packageService.deletePackage(postal.id);
+    }
+    for await (const payment of payments.payments) {
+      await this.paymentService.deletePayment(payment.id);
+    }
+    await this.roomRepository.save({
+      roomNumber: roomNumber,
+      userId: null,
     });
+    await this.userService.deleteUserById(room.userId);
+  }
+
+  async getRoomNumberList(businessId: string, query: GetRoomIDsQueryDto) {
+    let roomNumbers: Room[];
+
+    if (query.allRoom) {
+      roomNumbers = await this.roomRepository.find({
+        select: ['roomNumber'],
+        where: [{ businessId: businessId }],
+      });
+    } else {
+      roomNumbers = await this.roomRepository.find({
+        select: ['roomNumber'],
+        where: [{ businessId: businessId, userId: Not(IsNull()) }],
+      });
+    }
 
     return {
       roomNumbers: roomNumbers.map((room) => room.roomNumber),

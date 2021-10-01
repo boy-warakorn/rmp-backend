@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Room } from 'src/rooms/entities/room.model';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { UsersService } from 'src/users/users.service';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { CreateReportDto } from './dto/create-report.dto';
 import { Report } from './entities/report.model';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import { ReplyReportDto } from './dto/reply-report.dto';
+import { GetReportsQueryDto } from './dto/get-reports-query.dto';
+import { ResolveReportDto } from './dto/resolve-report.dto';
 
 dayjs.extend(utc);
 
@@ -38,21 +39,18 @@ export class ReportsService {
     await this.reportRepository.save(report);
   }
 
-  async getReports(status: string, isResident: boolean, userId: string) {
-    let reports;
-    if (status && !isResident) {
-      reports = await this.reportRepository.find({
-        where: [{ status: status }],
-      });
-    } else {
-      reports = await this.reportRepository.find();
-    }
-
-    if (isResident) {
-      reports = await this.reportRepository.find({
-        where: [{ userId: userId }],
-      });
-    }
+  async getReports(
+    query: GetReportsQueryDto,
+    isResident: boolean,
+    userId: string,
+  ) {
+    const reports = await this.reportRepository.find({
+      where: {
+        status: query.status ?? Not(IsNull()),
+        userId: isResident ? userId : Not(IsNull()),
+        roomRoomNumber: query.roomNumber ?? Not(IsNull()),
+      },
+    });
 
     let result = [];
     for await (const report of reports) {
@@ -70,6 +68,7 @@ export class ReportsService {
         title: report.title,
         detail: report.detail,
         status: report.status,
+        resolvedBy: report.resolveBy,
       };
       result.push(formattedReport);
     }
@@ -90,6 +89,8 @@ export class ReportsService {
         title: report.title,
         detail: report.detail,
         respondDetail: report.respondDetail ?? '',
+        resolveDetail: report.resolveDetail ?? '',
+        resolveBy: report.resolveBy,
       },
       roomNumber: report.roomRoomNumber,
       requestedDate: report?.requestedDate
@@ -110,11 +111,13 @@ export class ReportsService {
     });
   }
 
-  async resolveReport(id: string) {
+  async resolveReport(id: string, resolveReportDto: ResolveReportDto) {
     await this.reportRepository.save({
       id: id,
       status: 'resolved',
       resolvedDate: dayjs().format(),
+      resolveDetail: resolveReportDto.detail,
+      resolveBy: resolveReportDto.resolveBy,
     });
   }
 

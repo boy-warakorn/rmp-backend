@@ -58,7 +58,8 @@ export class AccountsService {
   }
 
   async createAccount(businessId: string, addAccountDto: AddAccountDto) {
-    const password = generate({ length: 10 });
+    // const password = generate({ length: 10 });
+    const password = '123456';
     const createUserDto = new CreateUserDto();
     createUserDto.businessId = businessId;
     createUserDto.citizenNumber = addAccountDto.citizenNumber;

@@ -12,6 +12,7 @@ import { JwtAuthGuard } from 'src/jwt-auth/jwt-auth.guard';
 import { CreateReportDto } from './dto/create-report.dto';
 import { GetReportsQueryDto } from './dto/get-reports-query.dto';
 import { ReplyReportDto } from './dto/reply-report.dto';
+import { ResolveReportDto } from './dto/resolve-report.dto';
 import { ReportsService } from './reports.service';
 
 // @todo implement business id to every get method
@@ -37,7 +38,7 @@ export class ReportsController {
   @Get('')
   @UseGuards(JwtAuthGuard)
   async getReports(@Query() query: GetReportsQueryDto) {
-    return await this.reportsService.getReports(query.status, false, '');
+    return await this.reportsService.getReports(query, false, '');
   }
 
   @Get('/pending')
@@ -51,7 +52,7 @@ export class ReportsController {
   @UseGuards(JwtAuthGuard)
   async getReportsByResident(@Req() req: Express.Request) {
     const { id } = req.user as any;
-    return await this.reportsService.getReports('', true, id);
+    return await this.reportsService.getReports({} as any, true, id);
   }
 
   @Get('/:id')
@@ -71,7 +72,10 @@ export class ReportsController {
 
   @Post('/:id/resolve')
   @UseGuards(JwtAuthGuard)
-  async resolveReport(@Param('id') id: string) {
-    return await this.reportsService.resolveReport(id);
+  async resolveReport(
+    @Param('id') id: string,
+    @Body() resolveReportDto: ResolveReportDto,
+  ) {
+    return await this.reportsService.resolveReport(id, resolveReportDto);
   }
 }

@@ -158,6 +158,10 @@ export class PaymentsService {
     });
   }
 
+  async deletePayment(id: string) {
+    await this.paymentRepository.delete(id);
+  }
+
   getCommonCharge() {
     return 3000;
   }
