@@ -259,10 +259,10 @@ export class RoomsService {
       },
     });
     await transporter.sendMail({
-      from: 'rmp.management.sys@gmail.com',
+      from: 'RMP Management Automatic Bot <rmp.management.sys@gmail.com>',
       to: email,
       subject: 'Your RMP application account',
-      html: `<div><h4>Thank you for trusting us!</h4><p>Email: ${userDto.email}</p><p>Password: ${userDto.password}</div>`,
+      html: `<div><h4>Thank you for trusting us!</h4><h3>This is account for login to our system</h3><p>Email: ${userDto.email}</p><p>Password: ${userDto.password}</div>`,
     });
 
     return {
