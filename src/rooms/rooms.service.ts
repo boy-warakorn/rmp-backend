@@ -17,6 +17,7 @@ import { IsNull, Not, Repository } from 'typeorm';
 import { AddOwnerDto } from './dto/add-owner.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { EditOwnerDto } from './dto/edit-owner.dto';
+import { GetRoomIDsQueryDto } from './dto/get-room-ids-query.dto';
 import { GetRoomsQueryDto } from './dto/get-rooms-query.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Room } from './entities/room.model';
@@ -289,11 +290,20 @@ export class RoomsService {
     await this.userService.deleteUserById(room.userId);
   }
 
-  async getRoomNumberList(businessId: string) {
-    const roomNumbers = await this.roomRepository.find({
-      select: ['roomNumber'],
-      where: [{ businessId: businessId, userId: Not(IsNull()) }],
-    });
+  async getRoomNumberList(businessId: string, query: GetRoomIDsQueryDto) {
+    let roomNumbers: Room[];
+
+    if (query.allRoom) {
+      roomNumbers = await this.roomRepository.find({
+        select: ['roomNumber'],
+        where: [{ businessId: businessId }],
+      });
+    } else {
+      roomNumbers = await this.roomRepository.find({
+        select: ['roomNumber'],
+        where: [{ businessId: businessId, userId: Not(IsNull()) }],
+      });
+    }
 
     return {
       roomNumbers: roomNumbers.map((room) => room.roomNumber),

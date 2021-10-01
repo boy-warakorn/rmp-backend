@@ -18,6 +18,7 @@ import { JwtAuthGuard } from 'src/jwt-auth/jwt-auth.guard';
 import { AddOwnerDto } from './dto/add-owner.dto';
 import { GetRoomsQueryDto } from './dto/get-rooms-query.dto';
 import { EditOwnerDto } from './dto/edit-owner.dto';
+import { GetRoomIDsQueryDto } from './dto/get-room-ids-query.dto';
 
 // @todo implement business id to every get method
 
@@ -42,9 +43,12 @@ export class RoomsController {
 
   @Get('/id-list')
   @UseGuards(JwtAuthGuard)
-  getRoomNumberList(@Req() req: Express.Request) {
+  getRoomNumberList(
+    @Req() req: Express.Request,
+    @Query() query: GetRoomIDsQueryDto,
+  ) {
     const { businessId } = req.user as any;
-    return this.roomsService.getRoomNumberList(businessId);
+    return this.roomsService.getRoomNumberList(businessId, query);
   }
 
   @Get('/:id')
