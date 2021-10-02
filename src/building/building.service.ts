@@ -74,6 +74,7 @@ export class BuildingService {
     });
 
     return {
+      id: building.id,
       buildingName: building.buildingName,
       roomPrefix: building.roomPrefix,
       baseCommonCharge: building.baseCommonCharge,
