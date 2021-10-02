@@ -21,7 +21,7 @@ export class Building {
   defaultCostPerMonth: number;
 
   @Column({ type: 'double precision' })
-  baseCommonCharge: string;
+  baseCommonCharge: number;
 
   @Column({ type: 'varchar' })
   address: string;
@@ -30,7 +30,7 @@ export class Building {
   roomPrefix: string;
 
   @Column({ type: 'varchar' })
-  floors: string;
+  floors: number;
 
   @Column()
   businessId: string;

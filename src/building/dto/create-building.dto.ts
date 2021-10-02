@@ -1,18 +1,18 @@
 export class CreateBuildingDto {
   buildingName: string;
-  defaultCostPerMonth: string;
-  baseCommonCharge: string;
+  defaultCostPerMonth: number;
+  baseCommonCharge: number;
   address: string;
   roomPrefix: string;
-  floors: string;
+  floors: number;
   rooms: RoomDto[];
 }
 
 export interface RoomDto {
-  floor: string;
+  floor: number;
   roomNumber: string;
-  size: string;
+  size: number;
   type: string;
-  costPerMonth: string;
+  costPerMonth: number;
   unit: string;
 }

@@ -43,8 +43,6 @@ export class BuildingService {
 
     const building = await this.buildingRepository.save(buildingDto);
 
-    console.log(building);
-
     for await (const room of createBuildingDto.rooms) {
       const roomDto = new CreateRoomDto();
       roomDto.buildingId = building.id;
@@ -57,5 +55,53 @@ export class BuildingService {
 
       await this.roomService.create(roomDto, businessId);
     }
+  }
+
+  async getBuildings(businessId: string) {
+    const buildings = await this.buildingRepository.find({
+      where: { businessId: businessId },
+      select: ['buildingName', 'id'],
+    });
+
+    return {
+      buildings: buildings,
+    };
+  }
+
+  async getBuilding(businessId: string, id: string) {
+    const building = await this.buildingRepository.findOne({
+      where: { businessId: businessId, id: id },
+    });
+
+    return {
+      buildingName: building.buildingName,
+      roomPrefix: building.roomPrefix,
+      baseCommonCharge: building.baseCommonCharge,
+      address: building.address,
+      floors: building.floors,
+    };
+  }
+
+  async getAllRoomsFromSpecificFloor(
+    businessId: string,
+    id: string,
+    floor: string,
+  ) {
+    const rooms =
+      await this.roomService.getAllRoomsFromSpecificFloorAndBuilding(
+        businessId,
+        id,
+        floor,
+      );
+
+    return {
+      rooms: rooms.map((room) => ({
+        roomNumber: room.roomNumber,
+        size: room.size,
+        type: room.type,
+        costPerMonth: room.pricePerMonth,
+        purchasePrice: room.purchasePrice ?? 0,
+      })),
+    };
   }
 }

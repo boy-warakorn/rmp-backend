@@ -41,7 +41,7 @@ export class Room {
   businessId: string;
 
   @Column()
-  floor: string;
+  floor: number;
 
   @Column()
   buildingId: string;

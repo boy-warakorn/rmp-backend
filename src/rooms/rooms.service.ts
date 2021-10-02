@@ -340,4 +340,16 @@ export class RoomsService {
       roomNumbers: roomNumbers.map((room) => room.roomNumber),
     };
   }
+
+  async getAllRoomsFromSpecificFloorAndBuilding(
+    businessId: string,
+    buildingId: string,
+    floor: string,
+  ) {
+    const rooms = await this.roomRepository.find({
+      where: { businessId: businessId, buildingId: buildingId, floor: floor },
+    });
+
+    return rooms;
+  }
 }

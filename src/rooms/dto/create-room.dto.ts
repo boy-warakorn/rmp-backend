@@ -7,5 +7,5 @@ export class CreateRoomDto {
   lastMoveAt: string;
   unit: string;
   buildingId: string;
-  floor: string;
+  floor: number;
 }
