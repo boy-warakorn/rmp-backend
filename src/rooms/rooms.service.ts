@@ -169,6 +169,8 @@ export class RoomsService {
       type,
       purchasePrice,
       unit,
+      buildingId,
+      floor,
     } = createRoomDto;
 
     room.businessId = businessId;
@@ -179,6 +181,8 @@ export class RoomsService {
     room.type = type;
     room.purchasePrice = purchasePrice;
     room.unit = unit;
+    room.buildingId = buildingId;
+    room.floor = floor;
 
     await this.roomRepository.save(room);
   }

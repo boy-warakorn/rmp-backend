@@ -1,3 +1,4 @@
+import { Building } from 'src/building/entities/building.model';
 import { Contact } from 'src/contacts/entities/contact.model';
 import { Payment } from 'src/payments/entities/payment.model';
 import { Package } from 'src/postals/entities/package.model';
@@ -23,6 +24,9 @@ export class Business {
 
   @OneToMany(() => User, (user) => user.business)
   user: User[];
+
+  @OneToMany(() => Building, (building) => building.business)
+  building: Building[];
 
   @OneToMany(() => Room, (room) => room.business)
   room: Room[];

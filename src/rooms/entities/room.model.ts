@@ -1,3 +1,4 @@
+import { Building } from 'src/building/entities/building.model';
 import { Business } from 'src/business/entities/business.model';
 import { Payment } from 'src/payments/entities/payment.model';
 import { Package } from 'src/postals/entities/package.model';
@@ -27,7 +28,7 @@ export class Room {
   @Column({ type: 'double precision' })
   pricePerMonth: number;
 
-  @Column({ type: 'double precision' })
+  @Column({ type: 'double precision', nullable: true })
   purchasePrice: number;
 
   @Column({ type: 'timestamptz', nullable: true })
@@ -39,12 +40,22 @@ export class Room {
   @Column()
   businessId: string;
 
+  @Column()
+  floor: string;
+
+  @Column()
+  buildingId: string;
+
   @Column({ type: 'uuid', nullable: true })
   userId: string;
 
   @ManyToOne(() => Business, (business) => business.room)
   @JoinColumn()
   business: Business;
+
+  @ManyToOne(() => Building, (building) => building.room)
+  @JoinColumn()
+  building: Building;
 
   @OneToMany(() => Report, (report) => report.room)
   @JoinColumn()

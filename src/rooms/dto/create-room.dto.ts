@@ -6,4 +6,6 @@ export class CreateRoomDto {
   purchasePrice: number;
   lastMoveAt: string;
   unit: string;
+  buildingId: string;
+  floor: string;
 }
