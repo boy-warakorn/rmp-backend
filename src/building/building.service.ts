@@ -68,13 +68,13 @@ export class BuildingService {
     };
   }
 
-  async getBuilding(businessId: string, id: string) {
+  async getBuilding(businessId: string) {
     const building = await this.buildingRepository.findOne({
-      where: { businessId: businessId, id: id },
+      where: { businessId: businessId },
     });
     const rooms = await this.roomService.getAllRoomsFromBuilding(
       businessId,
-      id,
+      building.id,
     );
 
     const occupiedRoom = rooms.filter((room) => room.userId !== null);

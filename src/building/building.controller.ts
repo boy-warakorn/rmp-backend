@@ -29,9 +29,9 @@ export class BuildingController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  getBuildings(@Req() req: Express.Request) {
+  getBuilding(@Req() req: Express.Request) {
     const { businessId } = req.user as any;
-    return this.buildingService.getBuildings(businessId);
+    return this.buildingService.getBuilding(businessId);
   }
 
   @Delete('/:id')
@@ -40,13 +40,6 @@ export class BuildingController {
   deleteBuilding(@Param('id') id: string, @Req() req: Express.Request) {
     const { businessId } = req.user as any;
     return this.buildingService.deleteBuilding(businessId, id);
-  }
-
-  @Get('/:id')
-  @UseGuards(JwtAuthGuard)
-  getBuilding(@Param('id') id: string, @Req() req: Express.Request) {
-    const { businessId } = req.user as any;
-    return this.buildingService.getBuilding(businessId, id);
   }
 
   @Get('/:id/floor/:floor')
