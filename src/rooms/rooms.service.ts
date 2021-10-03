@@ -169,6 +169,8 @@ export class RoomsService {
       type,
       purchasePrice,
       unit,
+      buildingId,
+      floor,
     } = createRoomDto;
 
     room.businessId = businessId;
@@ -179,6 +181,8 @@ export class RoomsService {
     room.type = type;
     room.purchasePrice = purchasePrice;
     room.unit = unit;
+    room.buildingId = buildingId;
+    room.floor = floor;
 
     await this.roomRepository.save(room);
   }
@@ -335,5 +339,35 @@ export class RoomsService {
     return {
       roomNumbers: roomNumbers.map((room) => room.roomNumber),
     };
+  }
+
+  async getAllRoomsFromSpecificFloorAndBuilding(
+    businessId: string,
+    buildingId: string,
+    floor: string,
+  ) {
+    const rooms = await this.roomRepository.find({
+      where: { businessId: businessId, buildingId: buildingId, floor: floor },
+    });
+
+    return rooms;
+  }
+
+  async getAllRoomsFromBuilding(businessId: string, buildingId: string) {
+    const rooms = await this.roomRepository.find({
+      where: { businessId: businessId, buildingId: buildingId },
+    });
+    return rooms;
+  }
+
+  async deleteAllRoomFromBuilding(businessId: string, buildingId: string) {
+    const roomIds = await this.roomRepository.find({
+      select: ['roomNumber'],
+      where: { buildingId: buildingId, businessId: businessId },
+    });
+
+    for await (const room of roomIds) {
+      await this.roomRepository.delete(room.roomNumber);
+    }
   }
 }

@@ -14,6 +14,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksService } from './tasks/tasks.service';
 import { ContactsModule } from './contacts/contacts.module';
+import { BuildingModule } from './building/building.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ContactsModule } from './contacts/contacts.module';
     PostalsModule,
     PaymentsModule,
     ContactsModule,
+    BuildingModule,
   ],
   providers: [TasksService],
 })
