@@ -72,6 +72,12 @@ export class BuildingService {
     const building = await this.buildingRepository.findOne({
       where: { businessId: businessId, id: id },
     });
+    const rooms = await this.roomService.getAllRoomsFromBuilding(
+      businessId,
+      id,
+    );
+
+    const occupiedRoom = rooms.filter((room) => room.userId !== null);
 
     return {
       id: building.id,
@@ -80,6 +86,8 @@ export class BuildingService {
       baseCommonCharge: building.baseCommonCharge,
       address: building.address,
       floors: building.floors,
+      totalRoom: rooms.length,
+      totalOccupiedRoom: occupiedRoom.length,
     };
   }
 
@@ -102,7 +110,22 @@ export class BuildingService {
         type: room.type,
         costPerMonth: room.pricePerMonth,
         purchasePrice: room.purchasePrice ?? 0,
+        contractType: room.userId ? 'rent' : 'unoccupied',
       })),
     };
+  }
+
+  async deleteBuilding(businessId: string, id: string) {
+    const rooms = await this.roomService.getAllRoomsFromBuilding(
+      businessId,
+      id,
+    );
+
+    const occupiedRoom = rooms.filter((room) => room.userId !== null);
+    if (occupiedRoom.length > 0) {
+      throw new ConflictException();
+    }
+    await this.roomService.deleteAllRoomFromBuilding(businessId, id);
+    await this.buildingRepository.delete(id);
   }
 }

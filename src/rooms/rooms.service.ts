@@ -352,4 +352,22 @@ export class RoomsService {
 
     return rooms;
   }
+
+  async getAllRoomsFromBuilding(businessId: string, buildingId: string) {
+    const rooms = await this.roomRepository.find({
+      where: { businessId: businessId, buildingId: buildingId },
+    });
+    return rooms;
+  }
+
+  async deleteAllRoomFromBuilding(businessId: string, buildingId: string) {
+    const roomIds = await this.roomRepository.find({
+      select: ['roomNumber'],
+      where: { buildingId: buildingId, businessId: businessId },
+    });
+
+    for await (const room of roomIds) {
+      await this.roomRepository.delete(room.roomNumber);
+    }
+  }
 }
