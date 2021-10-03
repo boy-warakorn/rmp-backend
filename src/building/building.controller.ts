@@ -6,6 +6,8 @@ import {
   Req,
   Get,
   Param,
+  Delete,
+  HttpCode,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/jwt-auth/jwt-auth.guard';
 import { BuildingService } from './building.service';
@@ -30,6 +32,14 @@ export class BuildingController {
   getBuildings(@Req() req: Express.Request) {
     const { businessId } = req.user as any;
     return this.buildingService.getBuildings(businessId);
+  }
+
+  @Delete('/:id')
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  deleteBuilding(@Param('id') id: string, @Req() req: Express.Request) {
+    const { businessId } = req.user as any;
+    return this.buildingService.deleteBuilding(businessId, id);
   }
 
   @Get('/:id')
