@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { Payment } from './entities/payment.model';
 import * as dayjs from 'dayjs';
@@ -44,8 +44,11 @@ export class PaymentsService {
     status: string,
     roomNumber: string,
     userId: string,
+    buildingId: string,
   ) {
     let payments: Payment[];
+
+    // TODO: Refactor
     if (userId) {
       const roomNumberRes = await this.roomService.getRoomNumberByUserId(
         userId,
@@ -65,19 +68,25 @@ export class PaymentsService {
             status: 'complete',
           },
         ],
-      });
-    } else if (roomNumber) {
-      payments = await this.paymentRepository.find({
-        roomRoomNumber: roomNumber,
-        businessId: businessId,
-      });
-    } else if (status) {
-      payments = await this.paymentRepository.find({
-        status: status,
-        businessId: businessId,
+        relations: ['room'],
       });
     } else {
-      payments = await this.paymentRepository.find({ businessId: businessId });
+      payments = await this.paymentRepository.find({
+        where: {
+          roomRoomNumber: roomNumber ? roomNumber : Not(IsNull()),
+          businessId: businessId,
+          status: status ? status : Not(IsNull()),
+        },
+        relations: ['room'],
+      });
+    }
+
+    console.log(buildingId, 'START');
+
+    if (buildingId) {
+      payments = payments.filter(
+        (payment) => payment.room.buildingId === buildingId,
+      );
     }
 
     return {

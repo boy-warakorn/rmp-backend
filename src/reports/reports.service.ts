@@ -44,13 +44,20 @@ export class ReportsService {
     isResident: boolean,
     userId: string,
   ) {
-    const reports = await this.reportRepository.find({
+    let reports = await this.reportRepository.find({
       where: {
         status: query.status ?? Not(IsNull()),
         userId: isResident ? userId : Not(IsNull()),
         roomRoomNumber: query.roomNumber ?? Not(IsNull()),
       },
+      relations: ['room'],
     });
+
+    if (query.buildingId) {
+      reports = reports.filter(
+        (report) => report.room.buildingId === query.buildingId,
+      );
+    }
 
     let result = [];
     for await (const report of reports) {

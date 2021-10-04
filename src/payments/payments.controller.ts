@@ -30,6 +30,7 @@ export class PaymentsController {
       query.status,
       query.roomNumber,
       '',
+      query.buildingId,
     );
   }
 
@@ -37,7 +38,7 @@ export class PaymentsController {
   @UseGuards(JwtAuthGuard)
   getPaymentsByResident(@Req() req: Express.Request) {
     const { businessId, id } = req.user as any;
-    return this.paymentsService.getPayments(businessId, '', '', id);
+    return this.paymentsService.getPayments(businessId, '', '', id, '');
   }
 
   @Get('/common-charge')

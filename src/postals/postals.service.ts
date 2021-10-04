@@ -31,13 +31,17 @@ export class PackagesService {
   async getPackages(query: GetPackageQuery) {
     try {
       const { roomNumber, status, buildingId } = query;
-      console.log(query);
-      const result = await this.packageRepository.find({
+      let result = await this.packageRepository.find({
         where: {
           roomRoomNumber: roomNumber ?? Not(IsNull()),
           status: status ? status : Not(IsNull()),
         },
+        relations: ['room'],
       });
+
+      if (buildingId) {
+        result = result.filter((res) => res.room.buildingId === buildingId);
+      }
 
       let packages = [];
       for await (const packageEle of result) {

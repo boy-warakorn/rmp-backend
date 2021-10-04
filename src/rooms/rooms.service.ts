@@ -138,6 +138,7 @@ export class RoomsService {
           '',
           room.roomNumber,
           '',
+          '',
         );
         const packages = await this.packageService.getPackages({
           roomNumber: room.roomNumber,
@@ -287,6 +288,7 @@ export class RoomsService {
       '',
       room.roomNumber,
       '',
+      '',
     );
     if (packages.packages.length > 0 || payments.payments.length > 0) {
       throw new ConflictException();
@@ -311,6 +313,7 @@ export class RoomsService {
       businessId,
       '',
       room.roomNumber,
+      '',
       '',
     );
 
