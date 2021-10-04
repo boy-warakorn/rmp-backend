@@ -81,8 +81,6 @@ export class PaymentsService {
       });
     }
 
-    console.log(buildingId, 'START');
-
     if (buildingId) {
       payments = payments.filter(
         (payment) => payment.room.buildingId === buildingId,

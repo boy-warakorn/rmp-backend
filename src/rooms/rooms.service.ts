@@ -336,12 +336,23 @@ export class RoomsService {
     if (query.allRoom) {
       roomNumbers = await this.roomRepository.find({
         select: ['roomNumber'],
-        where: [{ businessId: businessId }],
+        where: [
+          {
+            businessId: businessId,
+            buildingId: query.buildingId ?? Not(IsNull()),
+          },
+        ],
       });
     } else {
       roomNumbers = await this.roomRepository.find({
         select: ['roomNumber'],
-        where: [{ businessId: businessId, userId: Not(IsNull()) }],
+        where: [
+          {
+            businessId: businessId,
+            userId: Not(IsNull()),
+            buildingId: query.buildingId ?? Not(IsNull()),
+          },
+        ],
       });
     }
 
