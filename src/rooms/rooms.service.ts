@@ -11,6 +11,7 @@ import * as utc from 'dayjs/plugin/utc';
 import { generate } from 'generate-password';
 import { PaymentsService } from 'src/payments/payments.service';
 import { PackagesService } from 'src/postals/postals.service';
+import { ReportsService } from 'src/reports/reports.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { IsNull, Not, Repository } from 'typeorm';
@@ -36,6 +37,8 @@ export class RoomsService {
     private readonly packageService: PackagesService,
     @Inject(forwardRef(() => PaymentsService))
     private readonly paymentService: PaymentsService,
+    @Inject(forwardRef(() => ReportsService))
+    private readonly reportService: ReportsService,
   ) {}
 
   async getRoomNumberByUserId(userId: string) {
@@ -290,6 +293,7 @@ export class RoomsService {
       '',
       '',
     );
+
     if (packages.packages.length > 0 || payments.payments.length > 0) {
       throw new ConflictException();
     }
@@ -316,6 +320,10 @@ export class RoomsService {
       '',
       '',
     );
+    const rooms = await this.roomRepository.findOne({
+      where: { roomNumber: roomNumber },
+      relations: ['report'],
+    });
 
     for await (const postal of packages.packages) {
       await this.packageService.deletePackage(postal.id);
@@ -323,6 +331,10 @@ export class RoomsService {
     for await (const payment of payments.payments) {
       await this.paymentService.deletePayment(payment.id);
     }
+    for await (const report of rooms.report) {
+      await this.reportService.deleteReport(report.id);
+    }
+
     await this.roomRepository.save({
       roomNumber: roomNumber,
       userId: null,

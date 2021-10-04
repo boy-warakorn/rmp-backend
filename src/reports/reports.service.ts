@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { UsersService } from 'src/users/users.service';
@@ -19,6 +19,7 @@ export class ReportsService {
     @InjectRepository(Report)
     private reportRepository: Repository<Report>,
     private usersService: UsersService,
+    @Inject(forwardRef(() => RoomsService))
     private roomsService: RoomsService,
   ) {}
 
@@ -134,5 +135,9 @@ export class ReportsService {
         where: [{ status: 'pending', businessId: businessId }],
       }),
     };
+  }
+
+  async deleteReport(reportId: string) {
+    await this.reportRepository.delete(reportId);
   }
 }

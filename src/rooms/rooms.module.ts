@@ -6,6 +6,7 @@ import { Room } from './entities/room.model';
 import { UsersModule } from 'src/users/users.module';
 import { PostalsModule } from 'src/postals/postals.module';
 import { PaymentsModule } from 'src/payments/payments.module';
+import { ReportsModule } from 'src/reports/reports.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PaymentsModule } from 'src/payments/payments.module';
     UsersModule,
     forwardRef(() => PostalsModule),
     forwardRef(() => PaymentsModule),
+    forwardRef(() => ReportsModule),
   ],
   controllers: [RoomsController],
   providers: [RoomsService],
