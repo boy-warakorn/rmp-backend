@@ -1,9 +1,14 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateRoomDto } from 'src/rooms/dto/create-room.dto';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { Repository } from 'typeorm';
 import { CreateBuildingDto } from './dto/create-building.dto';
+import { UpdateBuildingDto } from './dto/update-building.dto';
 import { Building } from './entities/building.model';
 
 @Injectable()
@@ -88,6 +93,7 @@ export class BuildingService {
       floors: building.floors,
       totalRoom: rooms.length,
       totalOccupiedRoom: occupiedRoom.length,
+      costPerMonth: building.defaultCostPerMonth,
     };
   }
 
@@ -127,5 +133,27 @@ export class BuildingService {
     }
     await this.roomService.deleteAllRoomFromBuilding(businessId, id);
     await this.buildingRepository.delete(id);
+  }
+
+  async editBuilding(id: string, updateBuildingDto: UpdateBuildingDto) {
+    try {
+      await this.buildingRepository.save({
+        id: id,
+        ...updateBuildingDto,
+      });
+    } catch (error) {
+      throw new NotFoundException();
+    }
+  }
+
+  async getAllBuildingIdsFromBusiness(businessId: string) {
+    const result = await this.buildingRepository.find({
+      where: { businessId: businessId },
+      select: ['id', 'buildingName'],
+    });
+
+    return {
+      buildings: result,
+    };
   }
 }

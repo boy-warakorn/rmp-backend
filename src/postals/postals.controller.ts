@@ -25,10 +25,7 @@ export class PackagesController {
   @Get('')
   @UseGuards(JwtAuthGuard)
   getPackages(@Query() query: GetPackageQuery) {
-    return this.packagesService.getPackages(
-      query.status ?? '',
-      query.roomNumber,
-    );
+    return this.packagesService.getPackages(query);
   }
 
   @Post('')

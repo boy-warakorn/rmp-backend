@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ConsoleLogger,
   ForbiddenException,
   forwardRef,
   Inject,
@@ -8,12 +9,13 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomsService } from 'src/rooms/rooms.service';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { EditPackageDto } from './dto/edit-package.dto';
 import { Package } from './entities/package.model';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
+import { GetPackageQuery } from './dto/get-package-query.dto';
 
 dayjs.extend(utc);
 
@@ -26,37 +28,16 @@ export class PackagesService {
     private roomsService: RoomsService,
   ) {}
 
-  async getPackages(status: string, roomNumber: string) {
+  async getPackages(query: GetPackageQuery) {
     try {
-      let result;
-      if (roomNumber && status) {
-        result = await this.packageRepository.find({
-          where: [
-            {
-              roomRoomNumber: roomNumber,
-              status: status,
-            },
-          ],
-        });
-      } else if (roomNumber) {
-        result = await this.packageRepository.find({
-          where: [
-            {
-              roomRoomNumber: roomNumber,
-            },
-          ],
-        });
-      } else if (status) {
-        result = await this.packageRepository.find({
-          where: [
-            {
-              status: status,
-            },
-          ],
-        });
-      } else {
-        result = await this.packageRepository.find();
-      }
+      const { roomNumber, status, buildingId } = query;
+      console.log(query);
+      const result = await this.packageRepository.find({
+        where: {
+          roomRoomNumber: roomNumber ?? Not(IsNull()),
+          status: status ? status : Not(IsNull()),
+        },
+      });
 
       let packages = [];
       for await (const packageEle of result) {

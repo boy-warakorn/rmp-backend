@@ -53,6 +53,7 @@ export class RoomsService {
     if (!room) throw new NotFoundException();
 
     let user;
+
     const isOccupied = room.userId !== null;
 
     if (isOccupied) user = await this.userService.getUser(room.userId);
@@ -87,7 +88,7 @@ export class RoomsService {
   }
 
   async getRooms(getRoomsQueryDto: GetRoomsQueryDto, businessId: string) {
-    const { filter_tab, roomNumber } = getRoomsQueryDto;
+    const { filter_tab, roomNumber, buildingId } = getRoomsQueryDto;
     const selectCondition: (keyof Room)[] = [
       'lastMoveAt',
       'pricePerMonth',
@@ -106,10 +107,12 @@ export class RoomsService {
             businessId: businessId,
             userId: filter_tab === 'unoccupied' ? IsNull() : Not(IsNull()),
             roomNumber: roomNumber ?? Not(IsNull()),
+            buildingId: buildingId ?? Not(IsNull()),
           }
         : {
             businessId: businessId,
             roomNumber: roomNumber ?? Not(IsNull()),
+            buildingId: buildingId ?? Not(IsNull()),
           },
     });
 
@@ -136,10 +139,9 @@ export class RoomsService {
           room.roomNumber,
           '',
         );
-        const packages = await this.packageService.getPackages(
-          'in-storage',
-          room.roomNumber,
-        );
+        const packages = await this.packageService.getPackages({
+          roomNumber: room.roomNumber,
+        });
         const overduePayments = payments.payments.filter(
           (curPay) => curPay.status === 'active',
         );
@@ -277,7 +279,9 @@ export class RoomsService {
 
   async deleteRoomOwner(roomNumber: string, businessId: string) {
     const room = await this.roomRepository.findOne(roomNumber);
-    const packages = await this.packageService.getPackages('', room.roomNumber);
+    const packages = await this.packageService.getPackages({
+      roomNumber: room.roomNumber,
+    });
     const payments = await this.paymentService.getPayments(
       businessId,
       '',
@@ -300,7 +304,9 @@ export class RoomsService {
 
   async forceDeleteRoomOwner(roomNumber: string, businessId: string) {
     const room = await this.roomRepository.findOne(roomNumber);
-    const packages = await this.packageService.getPackages('', room.roomNumber);
+    const packages = await this.packageService.getPackages({
+      roomNumber: room.roomNumber,
+    });
     const payments = await this.paymentService.getPayments(
       businessId,
       '',

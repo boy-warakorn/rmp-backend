@@ -12,6 +12,7 @@ import {
 import { JwtAuthGuard } from 'src/jwt-auth/jwt-auth.guard';
 import { BuildingService } from './building.service';
 import { CreateBuildingDto } from './dto/create-building.dto';
+import { UpdateBuildingDto } from './dto/update-building.dto';
 
 @Controller('buildings')
 export class BuildingController {
@@ -34,6 +35,13 @@ export class BuildingController {
     return this.buildingService.getBuildings(businessId);
   }
 
+  @Get('/master-data')
+  @UseGuards(JwtAuthGuard)
+  getMasterData(@Req() req: Express.Request) {
+    const { businessId } = req.user as any;
+    return this.buildingService.getAllBuildingIdsFromBusiness(businessId);
+  }
+
   @Delete('/:id')
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
@@ -47,6 +55,12 @@ export class BuildingController {
   getBuilding(@Param('id') id: string, @Req() req: Express.Request) {
     const { businessId } = req.user as any;
     return this.buildingService.getBuilding(businessId, id);
+  }
+
+  @Post('/:id')
+  @UseGuards(JwtAuthGuard)
+  updateBuilding(@Param('id') id: string, @Body() body: UpdateBuildingDto) {
+    return this.buildingService.editBuilding(id, body);
   }
 
   @Get('/:id/floor/:floor')
