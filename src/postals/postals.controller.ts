@@ -24,8 +24,9 @@ export class PackagesController {
 
   @Get('')
   @UseGuards(JwtAuthGuard)
-  getPackages(@Query() query: GetPackageQuery) {
-    return this.packagesService.getPackages(query);
+  getPackages(@Query() query: GetPackageQuery, @Req() req: Express.Request) {
+    const { businessId } = req.user as any;
+    return this.packagesService.getPackages(query, businessId);
   }
 
   @Post('')

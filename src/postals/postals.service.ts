@@ -28,11 +28,12 @@ export class PackagesService {
     private roomsService: RoomsService,
   ) {}
 
-  async getPackages(query: GetPackageQuery) {
+  async getPackages(query: GetPackageQuery, businessId: string) {
     try {
       const { roomNumber, status, buildingId } = query;
       let result = await this.packageRepository.find({
         where: {
+          businessId: businessId,
           roomRoomNumber: roomNumber ?? Not(IsNull()),
           status: status ? status : Not(IsNull()),
         },
