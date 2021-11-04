@@ -44,12 +44,14 @@ export class ReportsService {
     query: GetReportsQueryDto,
     isResident: boolean,
     userId: string,
+    businessId: string,
   ) {
     let reports = await this.reportRepository.find({
       where: {
         status: query.status ?? Not(IsNull()),
         userId: isResident ? userId : Not(IsNull()),
         roomRoomNumber: query.roomNumber ?? Not(IsNull()),
+        businessId: businessId,
       },
       relations: ['room'],
     });
