@@ -54,14 +54,12 @@ export class ReportsController {
 
   @Get('/resident')
   @UseGuards(JwtAuthGuard)
-  async getReportsByResident(@Req() req: Express.Request) {
+  async getReportsByResident(
+    @Req() req: Express.Request,
+    @Query() query: GetReportsQueryDto,
+  ) {
     const { id, businessId } = req.user as any;
-    return await this.reportsService.getReports(
-      {} as any,
-      true,
-      id,
-      businessId,
-    );
+    return await this.reportsService.getReports(query, true, id, businessId);
   }
 
   @Get('/:id')
