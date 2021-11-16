@@ -36,9 +36,18 @@ export class PaymentsController {
 
   @Get('/residents')
   @UseGuards(JwtAuthGuard)
-  getPaymentsByResident(@Req() req: Express.Request) {
+  getPaymentsByResident(
+    @Query() query: GetPaymentsQueryDto,
+    @Req() req: Express.Request,
+  ) {
     const { businessId, id } = req.user as any;
-    return this.paymentsService.getPayments(businessId, '', '', id, '');
+    return this.paymentsService.getPayments(
+      businessId,
+      query.status,
+      '',
+      id,
+      '',
+    );
   }
 
   @Get('/common-charge')

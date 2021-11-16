@@ -12,6 +12,7 @@ import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { PayPaymentDto } from './dto/pay-payment.dto';
+import { query } from 'express';
 
 dayjs.extend(utc);
 
@@ -54,20 +55,10 @@ export class PaymentsService {
         userId,
       );
       payments = await this.paymentRepository.find({
-        where: [
-          {
-            roomRoomNumber: roomNumberRes,
-            status: 'active',
-          },
-          {
-            roomRoomNumber: roomNumberRes,
-            status: 'pending',
-          },
-          {
-            roomRoomNumber: roomNumberRes,
-            status: 'complete',
-          },
-        ],
+        where: {
+          roomRoomNumber: roomNumberRes,
+          status: status,
+        },
         relations: ['room'],
       });
     } else {
