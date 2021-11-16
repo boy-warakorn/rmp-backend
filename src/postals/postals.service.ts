@@ -72,13 +72,14 @@ export class PackagesService {
     }
   }
 
-  async getPackagesByResident(userId: string) {
+  async getPackagesByResident(query: GetPackageQuery, userId: string) {
     try {
       const roomNumber = await this.roomsService.getRoomNumberByUserId(userId);
       const result = await this.packageRepository.find({
         where: [
           {
             roomRoomNumber: roomNumber,
+            status: query.status ? query.status : Not(IsNull()),
           },
         ],
       });

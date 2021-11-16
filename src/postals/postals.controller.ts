@@ -41,9 +41,12 @@ export class PackagesController {
 
   @Get('/residents')
   @UseGuards(JwtAuthGuard)
-  getPackagesResident(@Req() req: Express.Request) {
+  getPackagesResident(
+    @Req() req: Express.Request,
+    @Query() query: GetPackageQuery,
+  ) {
     const { id } = req.user as any;
-    return this.packagesService.getPackagesByResident(id);
+    return this.packagesService.getPackagesByResident(query, id);
   }
 
   @Get('/master-data')
