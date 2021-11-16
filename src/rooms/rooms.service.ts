@@ -143,9 +143,12 @@ export class RoomsService {
           '',
           '',
         );
-        const packages = await this.packageService.getPackages({
-          roomNumber: room.roomNumber,
-        });
+        const packages = await this.packageService.getPackages(
+          {
+            roomNumber: room.roomNumber,
+          },
+          businessId,
+        );
         const overduePayments = payments.payments.filter(
           (curPay) => curPay.status === 'active',
         );
@@ -283,9 +286,12 @@ export class RoomsService {
 
   async deleteRoomOwner(roomNumber: string, businessId: string) {
     const room = await this.roomRepository.findOne(roomNumber);
-    const packages = await this.packageService.getPackages({
-      roomNumber: room.roomNumber,
-    });
+    const packages = await this.packageService.getPackages(
+      {
+        roomNumber: room.roomNumber,
+      },
+      businessId,
+    );
     const payments = await this.paymentService.getPayments(
       businessId,
       '',
@@ -310,9 +316,12 @@ export class RoomsService {
 
   async forceDeleteRoomOwner(roomNumber: string, businessId: string) {
     const room = await this.roomRepository.findOne(roomNumber);
-    const packages = await this.packageService.getPackages({
-      roomNumber: room.roomNumber,
-    });
+    const packages = await this.packageService.getPackages(
+      {
+        roomNumber: room.roomNumber,
+      },
+      businessId,
+    );
     const payments = await this.paymentService.getPayments(
       businessId,
       '',
