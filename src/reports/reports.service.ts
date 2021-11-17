@@ -40,7 +40,13 @@ export class ReportsService {
     report.status = 'pending';
     report.roomRoomNumber = roomNumber;
     report.requestedDate = dayjs().format();
-    await this.reportRepository.save(report);
+    const reportResult = await this.reportRepository.save(report);
+    for await (const imgUrl of createReportDto.imgList) {
+      await this.reportImageRepository.save({
+        imgUrl: imgUrl,
+        reportId: reportResult.id,
+      });
+    }
   }
 
   async getReports(
@@ -68,6 +74,9 @@ export class ReportsService {
     let result = [];
     for await (const report of reports) {
       const users = await this.usersService.getUser(report.userId);
+      const imgList = await this.reportImageRepository.find({
+        where: { reportId: report.id },
+      });
       const formattedReport = {
         id: report.id,
         roomNumber: report.roomRoomNumber,
@@ -82,6 +91,7 @@ export class ReportsService {
         detail: report.detail,
         status: report.status,
         resolvedBy: report.resolveBy,
+        imgList: imgList.map((img) => img.imgUrl),
       };
       result.push(formattedReport);
     }
@@ -94,6 +104,10 @@ export class ReportsService {
   async getReport(id: string) {
     const report = await this.reportRepository.findOne(id);
     const user = await this.usersService.getUser(report.userId);
+
+    const imgList = await this.reportImageRepository.find({
+      where: { reportId: report.id },
+    });
 
     return {
       id: report.id,
@@ -113,6 +127,7 @@ export class ReportsService {
         ? dayjs(report.resolvedDate).format('YYYY-MM-DD HH:MM:ss')
         : '',
       status: report.status,
+      imgList: imgList.map((img) => img.imgUrl),
     };
   }
 

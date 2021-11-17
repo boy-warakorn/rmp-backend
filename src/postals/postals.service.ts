@@ -1,11 +1,8 @@
 import {
-  ConflictException,
-  ConsoleLogger,
   ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomsService } from 'src/rooms/rooms.service';
@@ -16,6 +13,7 @@ import { Package } from './entities/package.model';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import { GetPackageQuery } from './dto/get-package-query.dto';
+import { PackageImage } from './entities/package-image.model';
 
 dayjs.extend(utc);
 
@@ -24,6 +22,8 @@ export class PackagesService {
   constructor(
     @InjectRepository(Package)
     private packageRepository: Repository<Package>,
+    @InjectRepository(PackageImage)
+    private packageImageRepository: Repository<PackageImage>,
     @Inject(forwardRef(() => RoomsService))
     private roomsService: RoomsService,
   ) {}
@@ -48,6 +48,10 @@ export class PackagesService {
       for await (const packageEle of result) {
         const room = await this.roomsService.getRoom(packageEle.roomRoomNumber);
 
+        const imgList = await this.packageImageRepository.find({
+          where: { packageId: packageEle.id },
+        });
+
         const formattedPackage = {
           id: packageEle.id,
           note: packageEle.note,
@@ -61,6 +65,7 @@ export class PackagesService {
             : '',
           postalService: packageEle.postalService,
           status: packageEle.status,
+          imgList: imgList.map((img) => img.imgUrl),
         };
         packages.push(formattedPackage);
       }
@@ -83,8 +88,13 @@ export class PackagesService {
           },
         ],
       });
-      return {
-        packages: result.map((packageEle) => ({
+
+      let packages = [];
+      for await (const packageEle of result) {
+        const imgList = await this.packageImageRepository.find({
+          where: { packageId: packageEle.id },
+        });
+        const formattedPackage = {
           id: packageEle.id,
           note: packageEle.note,
           roomNumber: packageEle.roomRoomNumber,
@@ -96,7 +106,13 @@ export class PackagesService {
             : '',
           postalService: packageEle.postalService,
           status: packageEle.status,
-        })),
+          imgList: imgList.map((img) => img.imgUrl),
+        };
+        packages.push(formattedPackage);
+      }
+
+      return {
+        packages: packages,
       };
     } catch (error) {
       console.log(`error`, error);
@@ -107,6 +123,10 @@ export class PackagesService {
     try {
       const result = await this.packageRepository.findOne(id);
       const room = await this.roomsService.getRoom(result.roomRoomNumber);
+      const imgList = await this.packageImageRepository.find({
+        where: { packageId: id },
+      });
+
       return {
         id: result.id,
         note: result.note,
@@ -120,6 +140,7 @@ export class PackagesService {
           : '',
         postalService: result.postalService,
         status: result.status,
+        imgList: imgList.map((img) => img.imgUrl),
       };
     } catch (error) {}
   }
@@ -139,7 +160,13 @@ export class PackagesService {
       throw new ForbiddenException();
     }
 
-    await this.packageRepository.save(preparePackage);
+    const packageResult = await this.packageRepository.save(preparePackage);
+    for await (const imgUrl of createPackageDto.imgList) {
+      await this.packageImageRepository.save({
+        packageId: packageResult.id,
+        imgUrl: imgUrl,
+      });
+    }
   }
 
   async editPackage(editPackageDto: EditPackageDto, packageId: string) {
@@ -152,6 +179,12 @@ export class PackagesService {
       id: packageId,
       ...editedPackage,
     });
+    for await (const imgUrl of editPackageDto.imgList) {
+      await this.packageImageRepository.save({
+        packageId: packageId,
+        imgUrl: imgUrl,
+      });
+    }
   }
 
   async deletePackage(packageId: string) {

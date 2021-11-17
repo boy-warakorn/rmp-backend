@@ -26,6 +26,7 @@ export class ReportsController {
     @Body() createReportDto: CreateReportDto,
   ) {
     const { businessId, id } = req.user as any;
+
     return await this.reportsService.createReport(
       id,
       businessId,
