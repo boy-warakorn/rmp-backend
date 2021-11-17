@@ -10,12 +10,15 @@ import * as utc from 'dayjs/plugin/utc';
 import { ReplyReportDto } from './dto/reply-report.dto';
 import { GetReportsQueryDto } from './dto/get-reports-query.dto';
 import { ResolveReportDto } from './dto/resolve-report.dto';
+import { ReportImage } from './entities/report-image.model';
 
 dayjs.extend(utc);
 
 @Injectable()
 export class ReportsService {
   constructor(
+    @InjectRepository(ReportImage)
+    private reportImageRepository: Repository<ReportImage>,
     @InjectRepository(Report)
     private reportRepository: Repository<Report>,
     private usersService: UsersService,

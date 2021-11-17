@@ -15,7 +15,6 @@ import {
 @Entity()
 @Unique(['name'])
 export class Business {
-
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -23,31 +22,28 @@ export class Business {
   name: string;
 
   @Column()
-  commonChargeRatio:string;
+  commonChargeRatio: string;
 
   @Column()
-  baseCommonCharge:string;
+  baseCommonCharge: string;
 
   @Column()
-  address:string
+  address: string;
 
   @Column()
-  firstname:string;
-  
-  @Column()
-  lastname:string;
+  firstname: string;
 
   @Column()
-  phoneNumber:string;
+  lastname: string;
 
   @Column()
-  citizenNumber:string;
+  phoneNumber: string;
 
   @Column()
-  email:string;
+  citizenNumber: string;
 
   @Column()
-  password:string;
+  email: string;
 
   @OneToMany(() => User, (user) => user.business)
   user: User[];

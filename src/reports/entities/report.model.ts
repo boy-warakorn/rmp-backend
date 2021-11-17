@@ -58,11 +58,11 @@ export class Report {
   @JoinColumn()
   room: Room;
 
-  @ManyToOne(() => Business, (business) => business.reports)
+  @ManyToOne(() => Business, (business) => business.report)
   @JoinColumn()
   business: Business;
 
-  @OneToMany(()=> ReportImage,(reportImage)=> reportImage.report)
+  @OneToMany(() => ReportImage, (reportImage) => reportImage.report)
   @JoinColumn()
   reportImage: ReportImage;
 }

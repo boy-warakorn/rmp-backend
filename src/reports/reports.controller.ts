@@ -15,11 +15,9 @@ import { ReplyReportDto } from './dto/reply-report.dto';
 import { ResolveReportDto } from './dto/resolve-report.dto';
 import { ReportsService } from './reports.service';
 
-// @todo implement business id to every get method
-
 @Controller('reports')
 export class ReportsController {
-  constructor(private readonly reportsService: ReportsService]) {}
+  constructor(private readonly reportsService: ReportsService) {}
 
   @Post('')
   @UseGuards(JwtAuthGuard)
