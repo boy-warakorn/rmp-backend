@@ -6,8 +6,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { ReportImage } from './report-image.model';
 
 @Entity()
 export class Report {
@@ -56,7 +58,11 @@ export class Report {
   @JoinColumn()
   room: Room;
 
-  @ManyToOne(() => Business, (business) => business.report)
+  @ManyToOne(() => Business, (business) => business.reports)
   @JoinColumn()
   business: Business;
+
+  @OneToMany(()=> ReportImage,(reportImage)=> reportImage.report)
+  @JoinColumn()
+  reportImage: ReportImage;
 }
