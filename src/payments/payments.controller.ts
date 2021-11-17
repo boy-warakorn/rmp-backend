@@ -73,6 +73,13 @@ export class PaymentsController {
     return this.paymentsService.confirmPayment(id);
   }
 
+  @Post('/:id/reject')
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  rejectPayment(@Param('id') id: string) {
+    return this.paymentsService.rejectPayment(id);
+  }
+
   @Get('/:id/receipt')
   @UseGuards(JwtAuthGuard)
   getReceipt(@Param('id') id: string) {

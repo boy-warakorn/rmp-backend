@@ -145,7 +145,10 @@ export class PaymentsService {
   async confirmPayment(id: string) {
     const specificPayment = await this.paymentRepository.findOne(id);
 
-    if (specificPayment.status !== 'pending') {
+    if (
+      specificPayment.status !== 'pending' &&
+      specificPayment.status !== 'rejected'
+    ) {
       throw new ConflictException();
     }
 
@@ -153,6 +156,20 @@ export class PaymentsService {
       id: id,
       confirmedAt: dayjs().format(),
       status: 'complete',
+    });
+  }
+
+  async rejectPayment(id: string) {
+    const specificPayment = await this.paymentRepository.findOne(id);
+
+    if (specificPayment.status !== 'pending') {
+      throw new ConflictException();
+    }
+
+    await this.paymentRepository.save({
+      id: id,
+      confirmedAt: dayjs().format(),
+      status: 'rejected',
     });
   }
 
