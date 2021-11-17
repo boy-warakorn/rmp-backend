@@ -19,10 +19,9 @@ export class ReportImage {
   imgUrl: string;
 
   @Column()
-  reportId:string
- 
+  reportId: string;
+
   @ManyToOne(() => Report, (report) => report.reportImage)
   @JoinColumn()
   report: Report;
-
 }
