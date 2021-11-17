@@ -12,15 +12,42 @@ import {
   Unique,
   OneToMany,
 } from 'typeorm';
-
 @Entity()
 @Unique(['name'])
 export class Business {
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   name: string;
+
+  @Column()
+  commonChargeRatio:string;
+
+  @Column()
+  baseCommonCharge:string;
+
+  @Column()
+  address:string
+
+  @Column()
+  firstname:string;
+  
+  @Column()
+  lastname:string;
+
+  @Column()
+  phoneNumber:string;
+
+  @Column()
+  citizenNumber:string;
+
+  @Column()
+  email:string;
+
+  @Column()
+  password:string;
 
   @OneToMany(() => User, (user) => user.business)
   user: User[];

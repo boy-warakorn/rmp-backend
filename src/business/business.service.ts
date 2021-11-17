@@ -17,10 +17,7 @@ export class BusinessService {
 
     const businessResult = await this.businessRepository.save(business);
 
-    return {
-      id: businessResult.id,
-      name: business.name,
-    };
+    return businessResult;
   }
 
   async getAllUserFromBusinessId(id: string) {
