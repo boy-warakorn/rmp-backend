@@ -39,6 +39,12 @@ export class ReportsService {
     report.userId = userId;
     report.status = 'pending';
     report.roomRoomNumber = roomNumber;
+    report.type = createReportDto.type;
+    report.availableDay =
+      createReportDto.type === 'maintenance'
+        ? createReportDto.dayList.join(', ')
+        : '';
+
     report.requestedDate = dayjs().format();
     const reportResult = await this.reportRepository.save(report);
     for await (const imgUrl of createReportDto.imgList) {
@@ -61,6 +67,7 @@ export class ReportsService {
         userId: isResident ? userId : Not(IsNull()),
         roomRoomNumber: query.roomNumber ?? Not(IsNull()),
         businessId: businessId,
+        type: query.type ? query.type : Not(IsNull()),
       },
       relations: ['room'],
     });
@@ -87,9 +94,11 @@ export class ReportsService {
         resolvedDate: report?.resolvedDate
           ? dayjs(report.resolvedDate).format('YYYY-MM-DD HH:MM:ss')
           : '',
+        type: report.type,
         title: report.title,
         detail: report.detail,
         status: report.status,
+        availableDay: report.availableDay,
         resolvedBy: report.resolveBy,
         imgList: imgList.map((img) => img.imgUrl),
       };
@@ -119,6 +128,8 @@ export class ReportsService {
         resolveDetail: report.resolveDetail ?? '',
         resolveBy: report.resolveBy,
       },
+      type: report.type,
+      availableDay: report.availableDay,
       roomNumber: report.roomRoomNumber,
       requestedDate: report?.requestedDate
         ? dayjs(report.requestedDate).format('YYYY-MM-DD HH:MM:ss')

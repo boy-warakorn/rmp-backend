@@ -44,6 +44,12 @@ export class Report {
   @Column()
   roomRoomNumber: string;
 
+  @Column({ nullable: true })
+  type: string;
+
+  @Column({ nullable: true })
+  availableDay: string;
+
   @Column()
   businessId: string;
 
