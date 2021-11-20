@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/jwt-auth/jwt-auth.guard';
 import { GetPaymentsQueryDto } from './dto/get-payments-query.dto';
+import { ImportPaymentDto } from './dto/import-payment.dto';
 import { PayPaymentDto } from './dto/pay-payment.dto';
 import { PaymentsService } from './payments.service';
 
@@ -48,6 +49,16 @@ export class PaymentsController {
       id,
       '',
     );
+  }
+
+  @Post('/imports')
+  @UseGuards(JwtAuthGuard)
+  importPayments(
+    @Body() paymentDto: ImportPaymentDto,
+    @Req() req: Express.Request,
+  ) {
+    const { businessId } = req.user as any;
+    return this.paymentsService.importPayment(paymentDto, businessId);
   }
 
   @Get('/common-charge')

@@ -13,6 +13,7 @@ import * as utc from 'dayjs/plugin/utc';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { PayPaymentDto } from './dto/pay-payment.dto';
 import { query } from 'express';
+import { ImportPaymentDto } from './dto/import-payment.dto';
 
 dayjs.extend(utc);
 
@@ -38,6 +39,24 @@ export class PaymentsService {
     payment.issuedAt = dayjs().format();
 
     await this.paymentRepository.save(payment);
+  }
+
+  async importPayment(importPaymentDto: ImportPaymentDto, businessId: string) {
+    try {
+      for await (const paymentDto of importPaymentDto.payments) {
+        const payment = new Payment();
+        payment.amount = paymentDto.amount;
+        payment.businessId = businessId;
+        payment.isRenew = false;
+        payment.roomRoomNumber = paymentDto.roomNumber;
+        payment.status = 'active';
+        payment.type = paymentDto.type;
+        payment.issuedAt = dayjs().format();
+        this.paymentRepository.save(payment);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getPayments(
