@@ -34,6 +34,9 @@ export class Payment {
   @Column()
   status: string;
 
+  @Column({ type: 'timestamptz', nullable: true })
+  updatedAt: string;
+
   @Column({ nullable: true })
   rejectNote: string;
 

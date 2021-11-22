@@ -39,6 +39,7 @@ export class PaymentsService {
     payment.status = createPaymentDto.status;
     payment.type = createPaymentDto.type;
     payment.issuedAt = dayjs().format();
+    payment.updatedAt = dayjs().format();
 
     await this.paymentRepository.save(payment);
   }
@@ -61,6 +62,7 @@ export class PaymentsService {
         payment.status = 'active';
         payment.type = paymentDto.type;
         payment.issuedAt = dayjs().format();
+        payment.updatedAt = dayjs().format();
         this.paymentRepository.save(payment);
       }
     } catch (error) {
@@ -84,6 +86,9 @@ export class PaymentsService {
         userId,
       );
       payments = await this.paymentRepository.find({
+        order: {
+          updatedAt: 'DESC',
+        },
         where: {
           roomId: roomNumberRes.id,
           status: status,
@@ -96,6 +101,9 @@ export class PaymentsService {
         : Not(IsNull());
 
       payments = await this.paymentRepository.find({
+        order: {
+          updatedAt: 'DESC',
+        },
         where: {
           roomId: roomId,
           businessId: businessId,
@@ -179,6 +187,7 @@ export class PaymentsService {
   async paySpecificPayment(id: string, payDto: PayPaymentDto) {
     await this.paymentRepository.save({
       id: id,
+      updatedAt: dayjs().format(),
       receiptUrl: payDto.receiptUrl,
       paidAt: dayjs().format(),
       status: 'pending',
@@ -203,6 +212,7 @@ export class PaymentsService {
 
     await this.paymentRepository.save({
       id: id,
+      updatedAt: dayjs().format(),
       confirmedAt: dayjs().format(),
       status: 'complete',
     });
@@ -218,6 +228,7 @@ export class PaymentsService {
 
     await this.paymentRepository.save({
       id: id,
+      updatedAt: dayjs().format(),
       confirmedAt: dayjs().format(),
       status: 'rejected',
     });

@@ -53,6 +53,9 @@ export class Report {
   @Column()
   businessId: string;
 
+  @Column({ type: 'timestamptz', nullable: true })
+  updatedAt: string;
+
   @Column()
   userId: string;
 

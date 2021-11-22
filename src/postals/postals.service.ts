@@ -38,6 +38,9 @@ export class PackagesService {
         : Not(IsNull());
 
       let result = await this.packageRepository.find({
+        order: {
+          updatedAt: 'DESC',
+        },
         where: {
           businessId: businessId,
           roomId: roomId,
@@ -49,7 +52,6 @@ export class PackagesService {
       if (buildingId) {
         result = result.filter((res) => res.room.buildingId === buildingId);
       }
-
       let packages = [];
       for await (const packageEle of result) {
         const room = await this.roomsService.getRoom(packageEle.roomId);
@@ -161,13 +163,14 @@ export class PackagesService {
       businessId,
     );
     const preparePackage = new Package();
-    preparePackage.arrivedAt = dayjs(createPackageDto.arrivedAt).format();
+    preparePackage.arrivedAt = dayjs().format();
     preparePackage.postalService = createPackageDto.postalService;
     preparePackage.note = createPackageDto.note ?? '';
     preparePackage.roomId = roomId;
     preparePackage.businessId = businessId;
     preparePackage.status = 'in-storage';
     preparePackage.roomRoomNumber = roomId;
+    preparePackage.updatedAt = dayjs().format();
 
     const room = await this.roomsService.getRoom(roomId);
 
@@ -193,6 +196,7 @@ export class PackagesService {
       note: editPackageDto.note,
       postalService: editPackageDto.postalService,
       arrivedAt: dayjs(editPackageDto.arrivedAt).format(),
+      updatedAt: dayjs().format(),
     };
 
     await this.packageRepository.save({
@@ -217,6 +221,7 @@ export class PackagesService {
   async confirmDeliver(packageId: string) {
     const confirmPackage = {
       deliveredAt: dayjs().format(),
+      updatedAt: dayjs().format(),
       status: 'received',
     };
 

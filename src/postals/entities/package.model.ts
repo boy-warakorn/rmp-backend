@@ -27,6 +27,9 @@ export class Package {
   @Column({ type: 'timestamptz', nullable: true })
   deliveredAt: string;
 
+  @Column({ type: 'timestamptz', nullable: true })
+  updatedAt: string;
+
   @Column()
   postalService: string;
 

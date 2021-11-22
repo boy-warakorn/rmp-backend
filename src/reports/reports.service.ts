@@ -45,8 +45,9 @@ export class ReportsService {
       createReportDto.type === 'maintenance'
         ? createReportDto.dayList.join(', ')
         : '';
-
+    report.updatedAt = dayjs().format();
     report.requestedDate = dayjs().format();
+
     const reportResult = await this.reportRepository.save(report);
     for await (const imgUrl of createReportDto.imgList) {
       await this.reportImageRepository.save({
@@ -71,6 +72,9 @@ export class ReportsService {
       : Not(IsNull());
 
     let reports = await this.reportRepository.find({
+      order: {
+        updatedAt: 'DESC',
+      },
       where: {
         status: query.status ?? Not(IsNull()),
         userId: isResident ? userId : Not(IsNull()),
@@ -164,6 +168,7 @@ export class ReportsService {
     await this.reportRepository.save({
       id: id,
       respondDetail: replyReportDto.detail,
+      updatedAt: dayjs().format(),
       status: 'responded',
     });
   }
@@ -173,6 +178,7 @@ export class ReportsService {
     await this.reportRepository.save({
       id: id,
       status: 'resolved',
+      updatedAt: dayjs().format(),
       resolvedDate: dayjs().format(),
       resolveDetail: resolveReportDto.detail,
       resolveBy: resolveReportDto.resolveBy,
