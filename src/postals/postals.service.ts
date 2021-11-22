@@ -167,6 +167,7 @@ export class PackagesService {
     preparePackage.roomId = roomId;
     preparePackage.businessId = businessId;
     preparePackage.status = 'in-storage';
+    preparePackage.roomRoomNumber = roomId;
 
     const room = await this.roomsService.getRoom(roomId);
 
@@ -185,11 +186,15 @@ export class PackagesService {
 
   // Done
   async editPackage(editPackageDto: EditPackageDto, packageId: string) {
+    if (!editPackageDto.imgList) {
+      editPackageDto.imgList = [];
+    }
     const editedPackage = {
       note: editPackageDto.note,
       postalService: editPackageDto.postalService,
       arrivedAt: dayjs(editPackageDto.arrivedAt).format(),
     };
+
     await this.packageRepository.save({
       id: packageId,
       ...editedPackage,

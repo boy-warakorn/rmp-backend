@@ -74,7 +74,7 @@ export class ReportsService {
       where: {
         status: query.status ?? Not(IsNull()),
         userId: isResident ? userId : Not(IsNull()),
-        id: roomId,
+        roomId: roomId,
         businessId: businessId,
         type: query.type ? query.type : Not(IsNull()),
       },

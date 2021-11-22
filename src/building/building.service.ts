@@ -114,6 +114,7 @@ export class BuildingService {
 
     return {
       rooms: rooms.map((room) => ({
+        id: room.id,
         roomNumber: room.roomNumber,
         size: room.size,
         type: room.type,
