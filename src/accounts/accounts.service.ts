@@ -26,11 +26,13 @@ export class AccountsService {
       getAccountsQueryDto.role,
     );
 
+    const allUser = await this.userService.getUsers(businessId, '');
+
     const statusCount = {
-      all: result.length,
-      admin: result.filter((res) => res.role === 'admin').length,
-      personnel: result.filter((res) => res.role === 'personnel').length,
-      resident: result.filter((res) => res.role === 'resident').length,
+      all: allUser.length,
+      admin: allUser.filter((res) => res.role === 'admin').length,
+      personnel: allUser.filter((res) => res.role === 'personnel').length,
+      resident: allUser.filter((res) => res.role === 'resident').length,
     };
 
     return {

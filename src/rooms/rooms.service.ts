@@ -188,7 +188,10 @@ export class RoomsService {
           businessId,
         );
         const overduePayments = payments.payments.filter(
-          (curPay) => curPay.status === 'active',
+          (curPay) =>
+            curPay.status === 'active' ||
+            curPay.status === 'rejected' ||
+            curPay.status === 'pending',
         );
 
         formattedRoom.paymentDues = overduePayments.length;
@@ -213,7 +216,15 @@ export class RoomsService {
 
     const statusCount = {
       all: allRoom.length,
-      overdued: allRoom.filter((rooms) => rooms.payment.length > 0).length,
+      overdued: allRoom.filter(
+        (room) =>
+          room.payment.filter(
+            (pay) =>
+              pay.status === 'active' ||
+              pay.status === 'rejected' ||
+              pay.status === 'pending',
+          ).length > 0 && room.userId,
+      ).length,
       occupied: occupiedRoom.length,
       unoccupied: allRoom.length - occupiedRoom.length,
     };
