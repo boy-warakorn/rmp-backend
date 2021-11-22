@@ -5,18 +5,21 @@ import { Package } from 'src/postals/entities/package.model';
 import { Report } from 'src/reports/entities/report.model';
 import { User } from 'src/users/entities/user.model';
 import {
-  PrimaryColumn,
   Entity,
   Column,
   ManyToOne,
   JoinColumn,
   OneToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
 export class Room {
-  @PrimaryColumn({ type: 'varchar' })
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ type: 'varchar' })
   roomNumber: string;
 
   @Column({ type: 'varchar' })

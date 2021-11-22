@@ -48,17 +48,20 @@ export class BuildingService {
 
     const building = await this.buildingRepository.save(buildingDto);
 
-    for await (const room of createBuildingDto.rooms) {
-      const roomDto = new CreateRoomDto();
-      roomDto.buildingId = building.id;
-      roomDto.floor = room.floor;
-      roomDto.pricePerMonth = Number(room.costPerMonth);
-      roomDto.roomNumber = room.roomNumber;
-      roomDto.size = Number(room.size);
-      roomDto.type = room.type;
-      roomDto.unit = room.unit;
-
-      await this.roomService.create(roomDto, businessId);
+    try {
+      for await (const room of createBuildingDto.rooms) {
+        const roomDto = new CreateRoomDto();
+        roomDto.buildingId = building.id;
+        roomDto.floor = room.floor;
+        roomDto.pricePerMonth = Number(room.costPerMonth);
+        roomDto.roomNumber = room.roomNumber;
+        roomDto.size = Number(room.size);
+        roomDto.type = room.type;
+        roomDto.unit = room.unit;
+        await this.roomService.create(roomDto, businessId);
+      }
+    } catch (error) {
+      throw new ConflictException();
     }
   }
 

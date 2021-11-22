@@ -42,7 +42,7 @@ export class Report {
   resolvedDate: string;
 
   @Column()
-  roomRoomNumber: string;
+  roomId: string;
 
   @Column({ nullable: true })
   type: string;

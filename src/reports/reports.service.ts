@@ -26,19 +26,20 @@ export class ReportsService {
     private roomsService: RoomsService,
   ) {}
 
+  // Done
   async createReport(
     userId: string,
     businessId: string,
     createReportDto: CreateReportDto,
   ) {
-    const roomNumber = await this.roomsService.getRoomNumberByUserId(userId);
+    const room = await this.roomsService.getRoomNumberByUserId(userId);
     const report = new Report();
     report.businessId = businessId;
     report.detail = createReportDto.detail;
     report.title = createReportDto.title;
     report.userId = userId;
     report.status = 'pending';
-    report.roomRoomNumber = roomNumber;
+    report.roomId = room.id;
     report.type = createReportDto.type;
     report.availableDay =
       createReportDto.type === 'maintenance'
@@ -55,17 +56,25 @@ export class ReportsService {
     }
   }
 
+  // Done
   async getReports(
     query: GetReportsQueryDto,
     isResident: boolean,
     userId: string,
     businessId: string,
   ) {
+    const roomId = query.roomNumber
+      ? await this.roomsService.getRoomIdByRoomNumber(
+          query.roomNumber,
+          businessId,
+        )
+      : Not(IsNull());
+
     let reports = await this.reportRepository.find({
       where: {
         status: query.status ?? Not(IsNull()),
         userId: isResident ? userId : Not(IsNull()),
-        roomRoomNumber: query.roomNumber ?? Not(IsNull()),
+        id: roomId,
         businessId: businessId,
         type: query.type ? query.type : Not(IsNull()),
       },
@@ -84,9 +93,13 @@ export class ReportsService {
       const imgList = await this.reportImageRepository.find({
         where: { reportId: report.id },
       });
+      const roomNumber = await this.roomsService.getRoomNumberByRoomId(
+        report.roomId,
+      );
+
       const formattedReport = {
         id: report.id,
-        roomNumber: report.roomRoomNumber,
+        roomNumber: roomNumber,
         reportOwner: users.profile.name,
         requestedDate: report?.requestedDate
           ? dayjs(report.requestedDate).format('YYYY-MM-DD HH:MM:ss')
@@ -110,9 +123,13 @@ export class ReportsService {
     };
   }
 
+  // Done
   async getReport(id: string) {
     const report = await this.reportRepository.findOne(id);
     const user = await this.usersService.getUser(report.userId);
+    const roomNumber = await this.roomsService.getRoomNumberByRoomId(
+      report.roomId,
+    );
 
     const imgList = await this.reportImageRepository.find({
       where: { reportId: report.id },
@@ -130,7 +147,7 @@ export class ReportsService {
       },
       type: report.type,
       availableDay: report.availableDay,
-      roomNumber: report.roomRoomNumber,
+      roomNumber: roomNumber,
       requestedDate: report?.requestedDate
         ? dayjs(report.requestedDate).format('YYYY-MM-DD HH:MM:ss')
         : '',
@@ -142,6 +159,7 @@ export class ReportsService {
     };
   }
 
+  // Done
   async replyReport(replyReportDto: ReplyReportDto, id: string) {
     await this.reportRepository.save({
       id: id,
@@ -150,6 +168,7 @@ export class ReportsService {
     });
   }
 
+  // Done
   async resolveReport(id: string, resolveReportDto: ResolveReportDto) {
     await this.reportRepository.save({
       id: id,
@@ -160,6 +179,7 @@ export class ReportsService {
     });
   }
 
+  // Done
   async getPendingReport(businessId: string) {
     return {
       count: await this.reportRepository.count({
@@ -168,6 +188,7 @@ export class ReportsService {
     };
   }
 
+  // Done
   async deleteReport(reportId: string) {
     await this.reportRepository.delete(reportId);
   }

@@ -17,7 +17,7 @@ export class Payment {
   type: string;
 
   @Column()
-  roomRoomNumber: string;
+  roomId: string;
 
   @Column()
   businessId: string;

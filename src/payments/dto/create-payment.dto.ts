@@ -1,6 +1,6 @@
 export class CreatePaymentDto {
   type: string;
-  roomNumber: string;
+  roomId: string;
   businessId: string;
   status: string;
   amount: number;

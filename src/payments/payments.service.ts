@@ -28,12 +28,14 @@ export class PaymentsService {
     private readonly roomService: RoomsService,
   ) {}
 
+  // Done
   async createPayment(createPaymentDto: CreatePaymentDto) {
     const payment = new Payment();
     payment.amount = createPaymentDto.amount;
     payment.businessId = createPaymentDto.businessId;
     payment.isRenew = createPaymentDto.isRenew;
-    payment.roomRoomNumber = createPaymentDto.roomNumber;
+
+    payment.roomId = createPaymentDto.roomId;
     payment.status = createPaymentDto.status;
     payment.type = createPaymentDto.type;
     payment.issuedAt = dayjs().format();
@@ -41,6 +43,7 @@ export class PaymentsService {
     await this.paymentRepository.save(payment);
   }
 
+  // Done
   async importPayment(importPaymentDto: ImportPaymentDto, businessId: string) {
     try {
       for await (const paymentDto of importPaymentDto.payments) {
@@ -48,7 +51,13 @@ export class PaymentsService {
         payment.amount = paymentDto.amount;
         payment.businessId = businessId;
         payment.isRenew = false;
-        payment.roomRoomNumber = paymentDto.roomNumber;
+
+        const roomId = await this.roomService.getRoomIdByRoomNumber(
+          paymentDto.roomNumber,
+          businessId,
+        );
+
+        payment.roomId = roomId;
         payment.status = 'active';
         payment.type = paymentDto.type;
         payment.issuedAt = dayjs().format();
@@ -59,6 +68,7 @@ export class PaymentsService {
     }
   }
 
+  // Done
   async getPayments(
     businessId: string,
     status: string,
@@ -75,15 +85,19 @@ export class PaymentsService {
       );
       payments = await this.paymentRepository.find({
         where: {
-          roomRoomNumber: roomNumberRes,
+          roomId: roomNumberRes.id,
           status: status,
         },
         relations: ['room'],
       });
     } else {
+      const roomId = roomNumber
+        ? await this.roomService.getRoomIdByRoomNumber(roomNumber, businessId)
+        : Not(IsNull());
+
       payments = await this.paymentRepository.find({
         where: {
-          roomRoomNumber: roomNumber ? roomNumber : Not(IsNull()),
+          roomId: roomId,
           businessId: businessId,
           status: status ? status : Not(IsNull()),
         },
@@ -97,10 +111,16 @@ export class PaymentsService {
       );
     }
 
-    return {
-      payments: payments.map((payment) => ({
+    let resultPayment = [];
+
+    for await (const payment of payments) {
+      const roomNumber = await this.roomService.getRoomNumberByRoomId(
+        payment.roomId,
+      );
+
+      const formattedPayment = {
         id: payment.id,
-        roomNumber: payment.roomRoomNumber,
+        roomNumber: roomNumber,
         paidAt: payment.paidAt
           ? dayjs(payment.paidAt).format('YYYY-MM-DD HH:MM:ss')
           : '',
@@ -113,32 +133,39 @@ export class PaymentsService {
         confirmedAt: payment.confirmedAt
           ? dayjs(payment.confirmedAt).format('YYYY-MM-DD HH:MM:ss')
           : '',
-      })),
+      };
+      resultPayment.push(formattedPayment);
+    }
+
+    return {
+      payments: resultPayment,
     };
   }
 
+  // Done
   async renewAllPayment() {
     const rooms = await this.roomService.getRoomsForRenewPayment();
 
     for await (const room of rooms) {
       const payments = await this.paymentRepository.find({
         where: {
-          roomRoomNumber: room.roomNumber,
+          roomId: room.id,
         },
       });
+
       if (payments.length < 1) {
         const commonChargePayment = new CreatePaymentDto();
         commonChargePayment.amount = this.getCommonCharge();
         commonChargePayment.businessId = room.businessId;
         commonChargePayment.isRenew = true;
-        commonChargePayment.roomNumber = room.roomNumber;
+        commonChargePayment.roomId = room.id;
         commonChargePayment.status = 'active';
         commonChargePayment.type = 'common-charge';
         const rentPayment = new CreatePaymentDto();
         rentPayment.amount = room.pricePerMonth;
         rentPayment.businessId = room.businessId;
         rentPayment.isRenew = true;
-        rentPayment.roomNumber = room.roomNumber;
+        rentPayment.roomId = room.id;
         rentPayment.status = 'active';
         rentPayment.type = 'rent';
 
@@ -148,6 +175,7 @@ export class PaymentsService {
     }
   }
 
+  // Done
   async paySpecificPayment(id: string, payDto: PayPaymentDto) {
     await this.paymentRepository.save({
       id: id,
@@ -157,10 +185,12 @@ export class PaymentsService {
     });
   }
 
+  // Done
   async getReceipt(id: string) {
     return await this.paymentRepository.findOne(id, { select: ['receiptUrl'] });
   }
 
+  // Done
   async confirmPayment(id: string) {
     const specificPayment = await this.paymentRepository.findOne(id);
 
@@ -178,6 +208,7 @@ export class PaymentsService {
     });
   }
 
+  // Done
   async rejectPayment(id: string) {
     const specificPayment = await this.paymentRepository.findOne(id);
 

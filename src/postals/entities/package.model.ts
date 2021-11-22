@@ -31,12 +31,15 @@ export class Package {
   postalService: string;
 
   @Column()
+  roomId: string;
+
+  @Column({ nullable: true })
   roomRoomNumber: string;
 
   @Column()
   businessId: string;
 
-  @ManyToOne(() => Room, (room) => room.report)
+  @ManyToOne(() => Room, (room) => room.package)
   @JoinColumn()
   room: Room;
 

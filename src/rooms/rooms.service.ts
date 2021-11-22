@@ -22,6 +22,8 @@ import { GetRoomIDsQueryDto } from './dto/get-room-ids-query.dto';
 import { GetRoomsQueryDto } from './dto/get-rooms-query.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Room } from './entities/room.model';
+import { v4 as uuidv4 } from 'uuid';
+import { RoomsModule } from './rooms.module';
 
 const nodeMailer = require('nodemailer');
 
@@ -41,17 +43,42 @@ export class RoomsService {
     private readonly reportService: ReportsService,
   ) {}
 
+  // Done
   async getRoomNumberByUserId(userId: string) {
     const room = await this.roomRepository.find({
       where: [{ userId: userId }],
     });
     if (room.length < 1) throw new NotFoundException();
 
-    return room[0].roomNumber;
+    return {
+      id: room[0].id,
+      roomNumber: room[0].roomNumber,
+    };
   }
 
-  async getRoom(roomNumber: string) {
-    const room = await this.roomRepository.findOne(roomNumber);
+  // Done
+  async getRoomNumberByRoomId(roomId: string) {
+    const room = await this.roomRepository.findOne(roomId);
+
+    if (!room) throw new NotFoundException();
+
+    return room.roomNumber;
+  }
+
+  // Done
+  async getRoomIdByRoomNumber(roomNumber: string, businessId: string) {
+    const room = await this.roomRepository.find({
+      where: { roomNumber: roomNumber, businessId: businessId },
+    });
+
+    if (room.length < 1) throw new NotFoundException();
+
+    return room[0].id;
+  }
+
+  // Done
+  async getRoom(roomId: string) {
+    const room = await this.roomRepository.findOne(roomId);
 
     if (!room) throw new NotFoundException();
 
@@ -61,6 +88,7 @@ export class RoomsService {
 
     if (isOccupied) user = await this.userService.getUser(room.userId);
     return {
+      id: room.id,
       resident: isOccupied
         ? {
             name: user.profile.name,
@@ -83,16 +111,20 @@ export class RoomsService {
     };
   }
 
+  // Done
   async getRoomsForRenewPayment() {
     return await this.roomRepository.find({
-      select: ['roomNumber', 'pricePerMonth', 'businessId'],
+      select: ['id', 'roomNumber', 'pricePerMonth', 'businessId'],
       where: [{ userId: Not(IsNull()) }],
     });
   }
 
+  // Done
   async getRooms(getRoomsQueryDto: GetRoomsQueryDto, businessId: string) {
     const { filter_tab, roomNumber, buildingId } = getRoomsQueryDto;
+
     const selectCondition: (keyof Room)[] = [
+      'id',
       'lastMoveAt',
       'pricePerMonth',
       'purchasePrice',
@@ -102,6 +134,9 @@ export class RoomsService {
       'unit',
       'userId',
     ];
+    const roomId = roomNumber
+      ? await this.getRoomIdByRoomNumber(roomNumber, businessId)
+      : Not(IsNull());
 
     const rooms = await this.roomRepository.find({
       select: selectCondition,
@@ -109,24 +144,25 @@ export class RoomsService {
         ? {
             businessId: businessId,
             userId: filter_tab === 'unoccupied' ? IsNull() : Not(IsNull()),
-            roomNumber: roomNumber ?? Not(IsNull()),
+            id: roomId,
             buildingId: buildingId ?? Not(IsNull()),
           }
         : {
             businessId: businessId,
-            roomNumber: roomNumber ?? Not(IsNull()),
+            id: roomId,
             buildingId: buildingId ?? Not(IsNull()),
           },
     });
 
     const formattedRooms = [];
+
     for await (const room of rooms) {
       let formattedRoom: any = {};
 
+      formattedRoom.id = room.id;
       formattedRoom.roomNumber = room.roomNumber;
       formattedRoom.size = room.size;
       formattedRoom.type = room.type;
-      // @todo will change this to real value
       formattedRoom.contractType = room.userId ? 'rent' : 'unoccupied';
       formattedRoom.lastMoveAt = !room.lastMoveAt
         ? ''
@@ -156,6 +192,7 @@ export class RoomsService {
         formattedRoom.paymentDues = overduePayments.length;
         formattedRoom.packageRemaining = packages.packages.length;
       }
+
       if (filter_tab !== 'overdued') {
         formattedRooms.push(formattedRoom);
       } else if (formattedRoom.paymentDues) {
@@ -168,7 +205,14 @@ export class RoomsService {
     };
   }
 
+  // Done
   async create(createRoomDto: CreateRoomDto, businessId: string) {
+    const isExist = await this.roomRepository.find({
+      where: { businessId: businessId, roomNumber: createRoomDto.roomNumber },
+    });
+
+    if (isExist.length > 1) throw new ConflictException();
+
     const room = new Room();
     const {
       lastMoveAt,
@@ -192,11 +236,17 @@ export class RoomsService {
     room.unit = unit;
     room.buildingId = buildingId;
     room.floor = floor;
+    room.id = uuidv4();
 
-    await this.roomRepository.save(room);
+    try {
+      await this.roomRepository.save(room);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  async updateRoom(roomNumber: string, updateRoomDto: UpdateRoomDto) {
+  // Done
+  async updateRoom(roomId: string, updateRoomDto: UpdateRoomDto) {
     const { type, size, pricePerMonth, purchasePrice, lastMoveAt, unit } =
       updateRoomDto;
     const room = new Room();
@@ -209,22 +259,24 @@ export class RoomsService {
     room.unit = unit;
 
     await this.roomRepository.save({
-      roomNumber: roomNumber,
+      id: roomId,
       ...room,
     });
   }
 
-  async deleteRoom(roomNumber: string) {
-    const room = await this.getRoom(roomNumber);
+  // Done
+  async deleteRoom(roomId: string) {
+    const room = await this.getRoom(roomId);
 
     if (room.resident?.citizenNumber) {
       throw new ConflictException();
     }
-    await this.roomRepository.delete(roomNumber);
+    await this.roomRepository.delete(roomId);
   }
 
-  async updateRoomOwner(editRoomOwner: EditOwnerDto, roomNumber: string) {
-    const room = await this.roomRepository.findOne(roomNumber);
+  // Done
+  async updateRoomOwner(editRoomOwner: EditOwnerDto, roomId: string) {
+    const room = await this.roomRepository.findOne(roomId);
     await this.userService.updateUserById(
       room.userId,
       editRoomOwner,
@@ -232,12 +284,13 @@ export class RoomsService {
     );
   }
 
+  // Done
   async addRoomOwner(
     addOwnerDto: AddOwnerDto,
-    roomNumber: string,
+    roomId: string,
     businessId: string,
   ) {
-    const room = await this.roomRepository.findOne(roomNumber);
+    const room = await this.roomRepository.findOne(roomId);
     if (!room) {
       throw new NotFoundException();
     }
@@ -259,7 +312,7 @@ export class RoomsService {
 
     const result = await this.userService.create(userDto);
     await this.roomRepository.save({
-      roomNumber: roomNumber,
+      id: roomId,
       userId: result.id,
       lastMoveAt: result.createdAt,
     });
@@ -284,8 +337,10 @@ export class RoomsService {
     };
   }
 
-  async deleteRoomOwner(roomNumber: string, businessId: string) {
-    const room = await this.roomRepository.findOne(roomNumber);
+  // Done
+  async deleteRoomOwner(roomId: string, businessId: string) {
+    const room = await this.roomRepository.findOne(roomId);
+
     const packages = await this.packageService.getPackages(
       {
         roomNumber: room.roomNumber,
@@ -308,14 +363,15 @@ export class RoomsService {
     }
 
     await this.roomRepository.save({
-      roomNumber: roomNumber,
+      id: roomId,
       userId: null,
     });
     await this.userService.deleteUserById(room.userId);
   }
 
-  async forceDeleteRoomOwner(roomNumber: string, businessId: string) {
-    const room = await this.roomRepository.findOne(roomNumber);
+  // Done
+  async forceDeleteRoomOwner(roomId: string, businessId: string) {
+    const room = await this.roomRepository.findOne(roomId);
     const packages = await this.packageService.getPackages(
       {
         roomNumber: room.roomNumber,
@@ -330,7 +386,7 @@ export class RoomsService {
       '',
     );
     const rooms = await this.roomRepository.findOne({
-      where: { roomNumber: roomNumber },
+      where: { id: roomId },
       relations: ['report'],
     });
 
@@ -345,12 +401,13 @@ export class RoomsService {
     }
 
     await this.roomRepository.save({
-      roomNumber: roomNumber,
+      id: roomId,
       userId: null,
     });
     await this.userService.deleteUserById(room.userId);
   }
 
+  // Done
   async getRoomNumberList(businessId: string, query: GetRoomIDsQueryDto) {
     let roomNumbers: Room[];
 
@@ -382,6 +439,7 @@ export class RoomsService {
     };
   }
 
+  // Done
   async getAllRoomsFromSpecificFloorAndBuilding(
     businessId: string,
     buildingId: string,
@@ -394,6 +452,7 @@ export class RoomsService {
     return rooms;
   }
 
+  // Done
   async getAllRoomsFromBuilding(businessId: string, buildingId: string) {
     const rooms = await this.roomRepository.find({
       where: { businessId: businessId, buildingId: buildingId },
@@ -401,14 +460,15 @@ export class RoomsService {
     return rooms;
   }
 
+  // Done
   async deleteAllRoomFromBuilding(businessId: string, buildingId: string) {
     const roomIds = await this.roomRepository.find({
-      select: ['roomNumber'],
+      select: ['id'],
       where: { buildingId: buildingId, businessId: businessId },
     });
 
     for await (const room of roomIds) {
-      await this.roomRepository.delete(room.roomNumber);
+      await this.roomRepository.delete(room.id);
     }
   }
 }

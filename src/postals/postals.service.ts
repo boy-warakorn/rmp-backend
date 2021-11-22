@@ -28,13 +28,19 @@ export class PackagesService {
     private roomsService: RoomsService,
   ) {}
 
+  // Done
   async getPackages(query: GetPackageQuery, businessId: string) {
     try {
       const { roomNumber, status, buildingId } = query;
+
+      const roomId = roomNumber
+        ? await this.roomsService.getRoomIdByRoomNumber(roomNumber, businessId)
+        : Not(IsNull());
+
       let result = await this.packageRepository.find({
         where: {
           businessId: businessId,
-          roomRoomNumber: roomNumber ?? Not(IsNull()),
+          roomId: roomId,
           status: status ? status : Not(IsNull()),
         },
         relations: ['room'],
@@ -46,7 +52,7 @@ export class PackagesService {
 
       let packages = [];
       for await (const packageEle of result) {
-        const room = await this.roomsService.getRoom(packageEle.roomRoomNumber);
+        const room = await this.roomsService.getRoom(packageEle.roomId);
 
         const imgList = await this.packageImageRepository.find({
           where: { packageId: packageEle.id },
@@ -55,7 +61,7 @@ export class PackagesService {
         const formattedPackage = {
           id: packageEle.id,
           note: packageEle.note,
-          roomNumber: packageEle.roomRoomNumber,
+          roomNumber: room.room.roomNumber,
           roomOwner: room.resident.name,
           arrivedAt: packageEle.arrivedAt
             ? dayjs(packageEle.arrivedAt).format('YYYY-MM-DD HH:MM:ss')
@@ -77,13 +83,14 @@ export class PackagesService {
     }
   }
 
+  // Done
   async getPackagesByResident(query: GetPackageQuery, userId: string) {
     try {
-      const roomNumber = await this.roomsService.getRoomNumberByUserId(userId);
+      const room = await this.roomsService.getRoomNumberByUserId(userId);
       const result = await this.packageRepository.find({
         where: [
           {
-            roomRoomNumber: roomNumber,
+            roomId: room.id,
             status: query.status ? query.status : Not(IsNull()),
           },
         ],
@@ -91,13 +98,14 @@ export class PackagesService {
 
       let packages = [];
       for await (const packageEle of result) {
+        const room = await this.roomsService.getRoom(packageEle.roomId);
         const imgList = await this.packageImageRepository.find({
           where: { packageId: packageEle.id },
         });
         const formattedPackage = {
           id: packageEle.id,
           note: packageEle.note,
-          roomNumber: packageEle.roomRoomNumber,
+          roomNumber: room.room.roomNumber,
           arrivedAt: packageEle.arrivedAt
             ? dayjs(packageEle.arrivedAt).format('YYYY-MM-DD HH:MM:ss')
             : '',
@@ -119,10 +127,11 @@ export class PackagesService {
     }
   }
 
+  // Done
   async getPackage(id: string) {
     try {
       const result = await this.packageRepository.findOne(id);
-      const room = await this.roomsService.getRoom(result.roomRoomNumber);
+      const room = await this.roomsService.getRoom(result.roomId);
       const imgList = await this.packageImageRepository.find({
         where: { packageId: id },
       });
@@ -130,7 +139,7 @@ export class PackagesService {
       return {
         id: result.id,
         note: result.note,
-        roomNumber: result.roomRoomNumber,
+        roomNumber: room.room.roomNumber,
         roomOwner: room.resident.name,
         arrivedAt: result.arrivedAt
           ? dayjs(result.arrivedAt).format('YYYY-MM-DD HH:MM:ss')
@@ -145,16 +154,21 @@ export class PackagesService {
     } catch (error) {}
   }
 
+  // Done
   async createPackage(createPackageDto: CreatePackageDto, businessId: string) {
+    const roomId = await this.roomsService.getRoomIdByRoomNumber(
+      createPackageDto.roomNumber,
+      businessId,
+    );
     const preparePackage = new Package();
     preparePackage.arrivedAt = dayjs(createPackageDto.arrivedAt).format();
     preparePackage.postalService = createPackageDto.postalService;
     preparePackage.note = createPackageDto.note ?? '';
-    preparePackage.roomRoomNumber = createPackageDto.roomNumber;
+    preparePackage.roomId = roomId;
     preparePackage.businessId = businessId;
     preparePackage.status = 'in-storage';
 
-    const room = await this.roomsService.getRoom(createPackageDto.roomNumber);
+    const room = await this.roomsService.getRoom(roomId);
 
     if (!room.resident?.citizenNumber) {
       throw new ForbiddenException();
@@ -169,6 +183,7 @@ export class PackagesService {
     }
   }
 
+  // Done
   async editPackage(editPackageDto: EditPackageDto, packageId: string) {
     const editedPackage = {
       note: editPackageDto.note,
@@ -187,10 +202,12 @@ export class PackagesService {
     }
   }
 
+  // Done
   async deletePackage(packageId: string) {
     await this.packageRepository.delete(packageId);
   }
 
+  // Done
   async confirmDeliver(packageId: string) {
     const confirmPackage = {
       deliveredAt: dayjs().format(),
@@ -200,6 +217,7 @@ export class PackagesService {
     await this.packageRepository.save({ id: packageId, ...confirmPackage });
   }
 
+  // Done
   async getMasterData() {
     return {
       postalService: ['Kerry', 'Thailand Post', 'Ninja', 'Others service'],
