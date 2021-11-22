@@ -52,6 +52,9 @@ export class Room {
   @Column({ type: 'uuid', nullable: true })
   userId: string;
 
+  @Column({ type: 'timestamptz', nullable: true })
+  updatedAt: string;
+
   @ManyToOne(() => Business, (business) => business.room)
   @JoinColumn()
   business: Business;

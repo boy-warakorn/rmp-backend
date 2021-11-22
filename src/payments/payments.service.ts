@@ -122,16 +122,16 @@ export class PaymentsService {
         id: payment.id,
         roomNumber: roomNumber,
         paidAt: payment.paidAt
-          ? dayjs(payment.paidAt).format('YYYY-MM-DD HH:MM:ss')
+          ? dayjs(payment.paidAt).format('YYYY-MM-DD HH:mm:ss')
           : '',
         amount: payment.amount,
         type: payment.type,
         status: payment.status,
         issuedAt: payment.issuedAt
-          ? dayjs(payment.issuedAt).format('YYYY-MM-DD HH:MM:ss')
+          ? dayjs(payment.issuedAt).format('YYYY-MM-DD HH:mm:ss')
           : '',
         confirmedAt: payment.confirmedAt
-          ? dayjs(payment.confirmedAt).format('YYYY-MM-DD HH:MM:ss')
+          ? dayjs(payment.confirmedAt).format('YYYY-MM-DD HH:mm:ss')
           : '',
       };
       resultPayment.push(formattedPayment);

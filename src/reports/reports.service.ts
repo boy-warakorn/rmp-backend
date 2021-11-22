@@ -102,10 +102,10 @@ export class ReportsService {
         roomNumber: roomNumber,
         reportOwner: users.profile.name,
         requestedDate: report?.requestedDate
-          ? dayjs(report.requestedDate).format('YYYY-MM-DD HH:MM:ss')
+          ? dayjs(report.requestedDate).format('YYYY-MM-DD HH:mm:ss')
           : '',
         resolvedDate: report?.resolvedDate
-          ? dayjs(report.resolvedDate).format('YYYY-MM-DD HH:MM:ss')
+          ? dayjs(report.resolvedDate).format('YYYY-MM-DD HH:mm:ss')
           : '',
         type: report.type,
         title: report.title,
@@ -149,10 +149,10 @@ export class ReportsService {
       availableDay: report.availableDay,
       roomNumber: roomNumber,
       requestedDate: report?.requestedDate
-        ? dayjs(report.requestedDate).format('YYYY-MM-DD HH:MM:ss')
+        ? dayjs(report.requestedDate).format('YYYY-MM-DD HH:mm:ss')
         : '',
       resolvedDate: report?.resolvedDate
-        ? dayjs(report.resolvedDate).format('YYYY-MM-DD HH:MM:ss')
+        ? dayjs(report.resolvedDate).format('YYYY-MM-DD HH:mm:ss')
         : '',
       status: report.status,
       imgList: imgList.map((img) => img.imgUrl),
@@ -190,6 +190,7 @@ export class ReportsService {
 
   // Done
   async deleteReport(reportId: string) {
+    await this.reportImageRepository.delete({ reportId: reportId });
     await this.reportRepository.delete(reportId);
   }
 }

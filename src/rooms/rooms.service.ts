@@ -23,7 +23,6 @@ import { GetRoomsQueryDto } from './dto/get-rooms-query.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Room } from './entities/room.model';
 import { v4 as uuidv4 } from 'uuid';
-import { RoomsModule } from './rooms.module';
 
 const nodeMailer = require('nodemailer');
 
@@ -104,7 +103,7 @@ export class RoomsService {
         purchasePrice: room.purchasePrice,
         unit: room.unit,
         lastMoveAt: room.lastMoveAt
-          ? dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:MM:ss')
+          ? dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:mm:ss')
           : '',
       },
       status: isOccupied ? 'occupied' : 'unoccupied',
@@ -140,6 +139,9 @@ export class RoomsService {
 
     const rooms = await this.roomRepository.find({
       select: selectCondition,
+      order: {
+        updatedAt: 'DESC',
+      },
       where: filter_tab
         ? {
             businessId: businessId,
@@ -166,7 +168,7 @@ export class RoomsService {
       formattedRoom.contractType = room.userId ? 'rent' : 'unoccupied';
       formattedRoom.lastMoveAt = !room.lastMoveAt
         ? ''
-        : dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:MM:ss');
+        : dayjs(room.lastMoveAt).format('YYYY-MM-DD HH:mm:ss');
       formattedRoom.unit = room.unit;
       formattedRoom.paymentDues = 0;
       formattedRoom.packageRemaining = 0;
@@ -237,6 +239,7 @@ export class RoomsService {
     room.buildingId = buildingId;
     room.floor = floor;
     room.id = uuidv4();
+    room.updatedAt = dayjs().format();
 
     try {
       await this.roomRepository.save(room);
@@ -257,9 +260,11 @@ export class RoomsService {
     room.size = size;
     room.purchasePrice = purchasePrice;
     room.unit = unit;
+    room.updatedAt = dayjs().format();
 
     await this.roomRepository.save({
       id: roomId,
+      updatedAt: dayjs().format(),
       ...room,
     });
   }
@@ -315,6 +320,7 @@ export class RoomsService {
       id: roomId,
       userId: result.id,
       lastMoveAt: result.createdAt,
+      updatedAt: dayjs().format(),
     });
 
     const transporter = nodeMailer.createTransport({
@@ -364,6 +370,7 @@ export class RoomsService {
 
     await this.roomRepository.save({
       id: roomId,
+      updatedAt: dayjs().format(),
       userId: null,
     });
     await this.userService.deleteUserById(room.userId);
@@ -403,6 +410,7 @@ export class RoomsService {
     await this.roomRepository.save({
       id: roomId,
       userId: null,
+      updatedAt: dayjs().format(),
     });
     await this.userService.deleteUserById(room.userId);
   }

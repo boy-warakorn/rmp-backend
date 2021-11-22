@@ -64,10 +64,10 @@ export class PackagesService {
           roomNumber: room.room.roomNumber,
           roomOwner: room.resident.name,
           arrivedAt: packageEle.arrivedAt
-            ? dayjs(packageEle.arrivedAt).format('YYYY-MM-DD HH:MM:ss')
+            ? dayjs(packageEle.arrivedAt).format('YYYY-MM-DD HH:mm:ss')
             : '',
           deliveredAt: packageEle.deliveredAt
-            ? dayjs(packageEle.deliveredAt).format('YYYY-MM-DD HH:MM:ss')
+            ? dayjs(packageEle.deliveredAt).format('YYYY-MM-DD HH:mm:ss')
             : '',
           postalService: packageEle.postalService,
           status: packageEle.status,
@@ -107,10 +107,10 @@ export class PackagesService {
           note: packageEle.note,
           roomNumber: room.room.roomNumber,
           arrivedAt: packageEle.arrivedAt
-            ? dayjs(packageEle.arrivedAt).format('YYYY-MM-DD HH:MM:ss')
+            ? dayjs(packageEle.arrivedAt).format('YYYY-MM-DD HH:mm:ss')
             : '',
           deliveredAt: packageEle.deliveredAt
-            ? dayjs(packageEle.deliveredAt).format('YYYY-MM-DD HH:MM:ss')
+            ? dayjs(packageEle.deliveredAt).format('YYYY-MM-DD HH:mm:ss')
             : '',
           postalService: packageEle.postalService,
           status: packageEle.status,
@@ -142,10 +142,10 @@ export class PackagesService {
         roomNumber: room.room.roomNumber,
         roomOwner: room.resident.name,
         arrivedAt: result.arrivedAt
-          ? dayjs(result.arrivedAt).format('YYYY-MM-DD HH:MM:ss')
+          ? dayjs(result.arrivedAt).format('YYYY-MM-DD HH:mm:ss')
           : '',
         deliveredAt: result.deliveredAt
-          ? dayjs(result.deliveredAt).format('YYYY-MM-DD HH:MM:ss')
+          ? dayjs(result.deliveredAt).format('YYYY-MM-DD HH:mm:ss')
           : '',
         postalService: result.postalService,
         status: result.status,
@@ -209,6 +209,7 @@ export class PackagesService {
 
   // Done
   async deletePackage(packageId: string) {
+    await this.packageImageRepository.delete({ packageId: packageId });
     await this.packageRepository.delete(packageId);
   }
 

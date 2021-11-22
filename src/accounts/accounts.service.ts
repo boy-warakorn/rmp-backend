@@ -33,7 +33,7 @@ export class AccountsService {
         name: user.name,
         createdAt: !user.createdAt
           ? ''
-          : dayjs(user.createdAt).format('YYYY-MM-DD HH:MM:ss'),
+          : dayjs(user.createdAt).format('YYYY-MM-DD HH:mm:ss'),
       })),
     };
   }
@@ -52,7 +52,7 @@ export class AccountsService {
         phoneNumber: result.profile.phoneNumber,
       },
       createdAt: result.createdAt
-        ? dayjs(result.createdAt).format('YYYY-MM-DD HH:MM:ss')
+        ? dayjs(result.createdAt).format('YYYY-MM-DD HH:mm:ss')
         : '',
     };
   }
