@@ -77,8 +77,23 @@ export class PackagesService {
         };
         packages.push(formattedPackage);
       }
+
+      const allPackages = await this.packageRepository.find({
+        where: { businessId: businessId },
+      });
+
+      const statusCount = {
+        all: allPackages.length,
+        inStorage: allPackages.filter(
+          (postal) => postal.status === 'in-storage',
+        ).length,
+        received: allPackages.filter((postal) => postal.status === 'received')
+          .length,
+      };
+
       return {
         packages: packages,
+        statusCount: statusCount,
       };
     } catch (error) {
       console.log(`error`, error);
@@ -121,8 +136,22 @@ export class PackagesService {
         packages.push(formattedPackage);
       }
 
+      const allPackages = await this.packageRepository.find({
+        where: { id: room.id },
+      });
+
+      const statusCount = {
+        all: allPackages.length,
+        inStorage: allPackages.filter(
+          (postal) => postal.status === 'in-storage',
+        ).length,
+        received: allPackages.filter((postal) => postal.status === 'received')
+          .length,
+      };
+
       return {
         packages: packages,
+        statusCount: statusCount,
       };
     } catch (error) {
       console.log(`error`, error);

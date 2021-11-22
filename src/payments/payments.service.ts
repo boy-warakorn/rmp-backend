@@ -145,8 +145,36 @@ export class PaymentsService {
       resultPayment.push(formattedPayment);
     }
 
+    let allPayments = [] as Payment[];
+
+    if (userId) {
+      const roomNumberRes = await this.roomService.getRoomNumberByUserId(
+        userId,
+      );
+      allPayments = await this.paymentRepository.find({
+        where: { businessId: businessId, roomId: roomNumberRes.id },
+      });
+    } else {
+      allPayments = await this.paymentRepository.find({
+        where: { businessId: businessId },
+      });
+    }
+
+    const statusCount = {
+      all: allPayments.length,
+      pending: allPayments.filter((payment) => payment.status === 'pending')
+        .length,
+      active: allPayments.filter((payment) => payment.status === 'active')
+        .length,
+      reject: allPayments.filter((payment) => payment.status === 'rejected')
+        .length,
+      complete: allPayments.filter((payment) => payment.status === 'complete')
+        .length,
+    };
+
     return {
       payments: resultPayment,
+      statusCount: statusCount,
     };
   }
 

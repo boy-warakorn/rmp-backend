@@ -202,8 +202,25 @@ export class RoomsService {
       }
     }
 
+    const allRoom = await this.roomRepository.find({
+      relations: ['payment'],
+      where: { businessId: businessId },
+    });
+
+    const occupiedRoom = await this.roomRepository.find({
+      where: { businessId: businessId, userId: Not(IsNull()) },
+    });
+
+    const statusCount = {
+      all: allRoom.length,
+      overdued: allRoom.filter((rooms) => rooms.payment.length > 0).length,
+      occupied: occupiedRoom.length,
+      unoccupied: allRoom.length - occupiedRoom.length,
+    };
+
     return {
       rooms: formattedRooms,
+      statusCount: statusCount,
     };
   }
 

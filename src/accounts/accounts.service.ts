@@ -26,6 +26,13 @@ export class AccountsService {
       getAccountsQueryDto.role,
     );
 
+    const statusCount = {
+      all: result.length,
+      admin: result.filter((res) => res.role === 'admin').length,
+      personnel: result.filter((res) => res.role === 'personnel').length,
+      resident: result.filter((res) => res.role === 'resident').length,
+    };
+
     return {
       users: result.map((user) => ({
         userId: user.id,
@@ -35,6 +42,7 @@ export class AccountsService {
           ? ''
           : dayjs(user.createdAt).format('YYYY-MM-DD HH:mm:ss'),
       })),
+      statusCount: statusCount,
     };
   }
 

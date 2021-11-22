@@ -122,8 +122,29 @@ export class ReportsService {
       result.push(formattedReport);
     }
 
+    let allReport = [] as Report[];
+    if (isResident) {
+      allReport = await this.reportRepository.find({
+        where: { userId: userId },
+      });
+    } else {
+      allReport = await this.reportRepository.find({
+        where: { businessId: businessId },
+      });
+    }
+
+    const statusCount = {
+      all: allReport.length,
+      pending: allReport.filter((report) => report.status === 'pending').length,
+      responded: allReport.filter((report) => report.status === 'responded')
+        .length,
+      resolved: allReport.filter((report) => report.status === 'resolved')
+        .length,
+    };
+
     return {
       reports: result,
+      statusCount: statusCount,
     };
   }
 
