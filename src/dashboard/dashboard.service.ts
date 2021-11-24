@@ -35,7 +35,7 @@ export class DashboardService {
 
       return {
         count: {
-          overdued: payments.statusCount.all,
+          overdued: payments.statusCount.active,
           held: packages.statusCount.inStorage,
           maintenance: reports.reports.filter(
             (report) => report.type === 'maintenance',
