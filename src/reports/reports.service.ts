@@ -129,7 +129,7 @@ export class ReportsService {
       });
     } else if (isResident) {
       allReport = await this.reportRepository.find({
-        where: { userId: userId },
+        where: { userId: userId, type: query.type },
       });
     } else {
       allReport = await this.reportRepository.find({
