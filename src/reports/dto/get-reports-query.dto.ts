@@ -3,4 +3,5 @@ export class GetReportsQueryDto {
   roomNumber: string;
   buildingId: string;
   type: 'complaint' | 'maintenance';
+  mobile: boolean;
 }

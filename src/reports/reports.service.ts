@@ -123,7 +123,11 @@ export class ReportsService {
     }
 
     let allReport = [] as Report[];
-    if (isResident) {
+    if (query.mobile) {
+      allReport = await this.reportRepository.find({
+        where: { userId: userId, type: query.type },
+      });
+    } else if (isResident) {
       allReport = await this.reportRepository.find({
         where: { userId: userId },
       });
