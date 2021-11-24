@@ -137,7 +137,7 @@ export class PackagesService {
       }
 
       const allPackages = await this.packageRepository.find({
-        where: { id: room.id },
+        where: { roomId: room.id },
       });
 
       const statusCount = {
