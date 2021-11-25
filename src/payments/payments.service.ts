@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not, Repository } from 'typeorm';
+import { IsNull, LessThan, Not, Repository } from 'typeorm';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { Payment } from './entities/payment.model';
 import * as dayjs from 'dayjs';
@@ -17,7 +17,7 @@ import { ImportPaymentDto } from './dto/import-payment.dto';
 
 dayjs.extend(utc);
 
-// status “in-active”, “active” , “pending” , “complete”, “reject”
+// status “in-active”, “active” , “pending” , “complete”, “reject”, "overdued"
 
 @Injectable()
 export class PaymentsService {
@@ -35,13 +35,28 @@ export class PaymentsService {
     payment.businessId = createPaymentDto.businessId;
     payment.isRenew = createPaymentDto.isRenew;
 
+    const currentDate = dayjs().format();
+    const duedDate = dayjs().add(1, 'day').format();
+
     payment.roomId = createPaymentDto.roomId;
     payment.status = createPaymentDto.status;
     payment.type = createPaymentDto.type;
-    payment.issuedAt = dayjs().format();
-    payment.updatedAt = dayjs().format();
+    payment.issuedAt = currentDate;
+    payment.updatedAt = currentDate;
+    payment.duedAt = duedDate;
 
     await this.paymentRepository.save(payment);
+  }
+  async checkDuedPayment() {
+    const currentDate = dayjs().format();
+    const payments = await this.paymentRepository.find({
+      select: ['id'],
+      where: { duedAt: LessThan(currentDate), status: 'active' },
+    });
+
+    for await (const payment of payments) {
+      await this.paymentRepository.save({ id: payment.id, status: 'overdued' });
+    }
   }
 
   // Done
@@ -141,6 +156,9 @@ export class PaymentsService {
         confirmedAt: payment.confirmedAt
           ? dayjs(payment.confirmedAt).format('YYYY-MM-DD HH:mm:ss')
           : '',
+        duedAt: payment.duedAt
+          ? dayjs(payment.duedAt).format('YYYY-MM-DD HH:mm:ss')
+          : '',
       };
       resultPayment.push(formattedPayment);
     }
@@ -169,6 +187,8 @@ export class PaymentsService {
       reject: allPayments.filter((payment) => payment.status === 'rejected')
         .length,
       complete: allPayments.filter((payment) => payment.status === 'complete')
+        .length,
+      overdued: allPayments.filter((payment) => payment.status === 'overdued')
         .length,
     };
 

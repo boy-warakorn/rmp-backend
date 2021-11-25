@@ -13,5 +13,6 @@ export class TasksService {
   automaticRenewPayment() {
     this.logger.debug('Automaticly Renew');
     this.paymentService.renewAllPayment();
+    this.paymentService.checkDuedPayment();
   }
 }
