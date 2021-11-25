@@ -12,7 +12,6 @@ import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { PayPaymentDto } from './dto/pay-payment.dto';
-import { query } from 'express';
 import { ImportPaymentDto } from './dto/import-payment.dto';
 
 dayjs.extend(utc);
@@ -188,7 +187,7 @@ export class PaymentsService {
         .length,
       complete: allPayments.filter((payment) => payment.status === 'complete')
         .length,
-      overdued: allPayments.filter((payment) => payment.status === 'overdue')
+      overdue: allPayments.filter((payment) => payment.status === 'overdue')
         .length,
     };
 
