@@ -17,7 +17,7 @@ import { ImportPaymentDto } from './dto/import-payment.dto';
 
 dayjs.extend(utc);
 
-// status “in-active”, “active” , “pending” , “complete”, “reject”, "overdued"
+// status “in-active”, “active” , “pending” , “complete”, “reject”, "overdue"
 
 @Injectable()
 export class PaymentsService {
@@ -55,7 +55,7 @@ export class PaymentsService {
     });
 
     for await (const payment of payments) {
-      await this.paymentRepository.save({ id: payment.id, status: 'overdued' });
+      await this.paymentRepository.save({ id: payment.id, status: 'overdue' });
     }
   }
 
@@ -188,7 +188,7 @@ export class PaymentsService {
         .length,
       complete: allPayments.filter((payment) => payment.status === 'complete')
         .length,
-      overdued: allPayments.filter((payment) => payment.status === 'overdued')
+      overdued: allPayments.filter((payment) => payment.status === 'overdue')
         .length,
     };
 
