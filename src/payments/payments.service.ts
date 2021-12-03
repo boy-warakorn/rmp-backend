@@ -67,7 +67,7 @@ export class PaymentsService {
           user.deviceId,
           {
             notification: {
-              title: 'Overdued Payments!',
+              title: 'Overdued Payment',
               body: 'You have new overdued payment!. Please check it in application',
             },
           },
@@ -238,8 +238,8 @@ export class PaymentsService {
             user.deviceId,
             {
               notification: {
-                title: 'New Payments!',
-                body: 'A new payment has been created!',
+                title: 'New Payment',
+                body: 'A new payment has been added!',
               },
             },
             { priority: 'high' },
@@ -294,6 +294,22 @@ export class PaymentsService {
       throw new ConflictException();
     }
 
+    const room = await this.roomService.getRoom(specificPayment.roomId);
+    const user = await this.userService.getUser(room.resident.userId);
+
+    if (user.deviceId) {
+      await admin.messaging().sendToDevice(
+        user.deviceId,
+        {
+          notification: {
+            title: 'Complete Payment',
+            body: 'Your pending payment has complete',
+          },
+        },
+        { priority: 'high' },
+      );
+    }
+
     await this.paymentRepository.save({
       id: id,
       updatedAt: dayjs().format(),
@@ -305,6 +321,21 @@ export class PaymentsService {
   // Done
   async rejectPayment(id: string) {
     const specificPayment = await this.paymentRepository.findOne(id);
+    const room = await this.roomService.getRoom(specificPayment.roomId);
+    const user = await this.userService.getUser(room.resident.userId);
+
+    if (user.deviceId) {
+      await admin.messaging().sendToDevice(
+        user.deviceId,
+        {
+          notification: {
+            title: 'Reject Payment',
+            body: 'Your payment has been rejected. Please check it in application',
+          },
+        },
+        { priority: 'high' },
+      );
+    }
 
     if (specificPayment.status !== 'pending') {
       throw new ConflictException();
