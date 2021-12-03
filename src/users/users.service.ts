@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
@@ -12,8 +13,10 @@ import * as utc from 'dayjs/plugin/utc';
 import { BusinessService } from 'src/business/business.service';
 import { EditOwnerDto } from 'src/rooms/dto/edit-owner.dto';
 import { Repository } from 'typeorm';
+import { ChangePasswordDto } from './dto/change-password';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.model';
+import { hash, compare } from 'bcryptjs';
 
 dayjs.extend(utc);
 
@@ -93,6 +96,22 @@ export class UsersService {
         : [{ businessId: businessId, isDelete: false }],
     });
     return result;
+  }
+
+  async changePassword(changePasswordDto: ChangePasswordDto, userId: string) {
+    const { currentPassword, newPassword } = changePasswordDto;
+    const userFound = await this.userRepository.findOne(userId);
+
+    const isPsEqual = await compare(currentPassword, userFound.password);
+    const hashNewPassword = await hash(newPassword, 10);
+    if (isPsEqual) {
+      this.userRepository.save({
+        id: userId,
+        password: hashNewPassword,
+      });
+    } else {
+      throw new UnauthorizedException('Password is not the same in our system');
+    }
   }
 
   async deleteUserById(id: string) {

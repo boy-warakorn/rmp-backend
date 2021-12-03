@@ -1,6 +1,7 @@
 import { Business } from 'src/business/entities/business.model';
 import {
   BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
@@ -23,7 +24,7 @@ export class User {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, unique: true })
   username: string;
 
   @Column()
@@ -38,7 +39,7 @@ export class User {
   @Column({ nullable: true })
   deviceId: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()
@@ -65,6 +66,7 @@ export class User {
   report: Report[];
 
   @BeforeInsert()
+  @BeforeUpdate()
   async hashPassword(): Promise<void> {
     this.password = await hash(this.password, 10);
   }
