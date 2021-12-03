@@ -14,6 +14,8 @@ import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import { GetPackageQuery } from './dto/get-package-query.dto';
 import { PackageImage } from './entities/package-image.model';
+import { UsersService } from 'src/users/users.service';
+import * as admin from 'firebase-admin';
 
 dayjs.extend(utc);
 
@@ -26,6 +28,7 @@ export class PackagesService {
     private packageImageRepository: Repository<PackageImage>,
     @Inject(forwardRef(() => RoomsService))
     private roomsService: RoomsService,
+    private usersService: UsersService,
   ) {}
 
   // Done
@@ -191,6 +194,19 @@ export class PackagesService {
       createPackageDto.roomNumber,
       businessId,
     );
+    const user = await this.usersService.getUser(roomId);
+    if (user.deviceId) {
+      await admin.messaging().sendToDevice(
+        user.deviceId,
+        {
+          notification: {
+            title: 'New Package',
+            body: 'You have new package!. Please check it in application',
+          },
+        },
+        { priority: 'high' },
+      );
+    }
     const preparePackage = new Package();
     preparePackage.arrivedAt = dayjs().format();
     preparePackage.postalService = createPackageDto.postalService;
