@@ -13,6 +13,8 @@ import * as utc from 'dayjs/plugin/utc';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { PayPaymentDto } from './dto/pay-payment.dto';
 import { ImportPaymentDto } from './dto/import-payment.dto';
+import * as admin from 'firebase-admin';
+import { UsersService } from 'src/users/users.service';
 
 dayjs.extend(utc);
 
@@ -25,6 +27,7 @@ export class PaymentsService {
     private paymentRepository: Repository<Payment>,
     @Inject(forwardRef(() => RoomsService))
     private readonly roomService: RoomsService,
+    private readonly userService: UsersService,
   ) {}
 
   // Done
@@ -207,6 +210,19 @@ export class PaymentsService {
           roomId: room.id,
         },
       });
+      const user = await this.userService.getUser(room.userId);
+
+      if (user.deviceId) {
+        admin.messaging().sendToDevice(
+          user.deviceId,
+          {
+            data: {
+              content: 'A new payment has been created!',
+            },
+          },
+          { priority: 'high' },
+        );
+      }
 
       if (payments.length < 1) {
         const commonChargePayment = new CreatePaymentDto();

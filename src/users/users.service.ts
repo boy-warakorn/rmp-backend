@@ -17,6 +17,7 @@ import { ChangePasswordDto } from './dto/change-password';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.model';
 import { hash, compare } from 'bcryptjs';
+import { UpdateDeviceIdDto } from './dto/update-device-id.dto';
 
 dayjs.extend(utc);
 
@@ -84,6 +85,7 @@ export class UsersService {
         role: user.role,
         citizenNumber: user.citizenNumber,
       },
+      deviceId: user.deviceId,
       businessName: businessName,
       createdAt: user.createdAt,
     };
@@ -112,6 +114,13 @@ export class UsersService {
     } else {
       throw new UnauthorizedException('Password is not the same in our system');
     }
+  }
+
+  async updateDeviceId(updateDeviceIdDto: UpdateDeviceIdDto, userId: string) {
+    await this.userRepository.save({
+      id: userId,
+      deviceId: updateDeviceIdDto.deviceId,
+    });
   }
 
   async deleteUserById(id: string) {

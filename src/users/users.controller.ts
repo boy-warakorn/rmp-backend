@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
 import { JwtAuthGuard } from 'src/jwt-auth/jwt-auth.guard';
 import { ChangePasswordDto } from './dto/change-password';
+import { UpdateDeviceIdDto } from './dto/update-device-id.dto';
 
 // @todo implement business id to every get method
 
@@ -29,5 +30,14 @@ export class UsersController {
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
     return this.usersService.changePassword(changePasswordDto, req.user['id']);
+  }
+
+  @Post('/update-device-id')
+  @UseGuards(JwtAuthGuard)
+  updateDeviceId(
+    @Req() req: Express.Request,
+    @Body() updateDeviceIdDto: UpdateDeviceIdDto,
+  ) {
+    return this.usersService.updateDeviceId(updateDeviceIdDto, req.user['id']);
   }
 }
