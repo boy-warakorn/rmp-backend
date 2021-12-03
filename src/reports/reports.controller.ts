@@ -79,9 +79,16 @@ export class ReportsController {
   @Post('/:id/resolve')
   @UseGuards(JwtAuthGuard)
   async resolveReport(
+    @Req() req: Express.Request,
     @Param('id') id: string,
     @Body() resolveReportDto: ResolveReportDto,
   ) {
-    return await this.reportsService.resolveReport(id, resolveReportDto);
+    const { id: userId, businessId } = req.user as any;
+    return await this.reportsService.resolveReport(
+      id,
+      resolveReportDto,
+      userId,
+      businessId,
+    );
   }
 }

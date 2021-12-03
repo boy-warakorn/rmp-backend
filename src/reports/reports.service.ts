@@ -11,6 +11,7 @@ import { ReplyReportDto } from './dto/reply-report.dto';
 import { GetReportsQueryDto } from './dto/get-reports-query.dto';
 import { ResolveReportDto } from './dto/resolve-report.dto';
 import { ReportImage } from './entities/report-image.model';
+import * as admin from 'firebase-admin';
 
 dayjs.extend(utc);
 
@@ -33,6 +34,31 @@ export class ReportsService {
     createReportDto: CreateReportDto,
   ) {
     const room = await this.roomsService.getRoomNumberByUserId(userId);
+    const users = await this.usersService.getUsers(businessId, '');
+    const deviceIds = [];
+    for await (const user of users) {
+      if (user.deviceId) deviceIds.push(user.deviceId);
+    }
+    if (deviceIds.length > 0) {
+      await admin.messaging().sendToDevice(
+        deviceIds,
+        {
+          notification: {
+            title:
+              createReportDto.type === 'complaint'
+                ? 'Complaint'
+                : 'Maintenance Report',
+            body: `You have new ${
+              createReportDto.type === 'complaint'
+                ? 'complaint'
+                : 'maintenance report'
+            } from ${room.roomNumber}`,
+          },
+        },
+        { priority: 'high' },
+      );
+    }
+
     const report = new Report();
     report.businessId = businessId;
     report.detail = createReportDto.detail;
@@ -190,6 +216,26 @@ export class ReportsService {
 
   // Done
   async replyReport(replyReportDto: ReplyReportDto, id: string) {
+    const report = await this.reportRepository.findOne(id);
+    const room = await this.roomsService.getRoom(report.roomId);
+    const user = await this.usersService.getUser(room.resident.userId);
+
+    if (user.deviceId) {
+      await admin.messaging().sendToDevice(
+        user.deviceId,
+        {
+          notification: {
+            title:
+              report.type === 'complaint' ? 'Complaint' : 'Maintenance Report',
+            body: `Your ${
+              report.type === 'complaint' ? 'complaint' : 'maintenance report'
+            } has been reply`,
+          },
+        },
+        { priority: 'high' },
+      );
+    }
+
     await this.reportRepository.save({
       id: id,
       respondDetail: replyReportDto.detail,
@@ -199,7 +245,41 @@ export class ReportsService {
   }
 
   // Done
-  async resolveReport(id: string, resolveReportDto: ResolveReportDto) {
+  async resolveReport(
+    id: string,
+    resolveReportDto: ResolveReportDto,
+    userId: string,
+    businessId: string,
+  ) {
+    const deviceIds = [];
+    const users = await this.usersService.getUsers(businessId, '');
+    const report = await this.reportRepository.findOne(id);
+
+    if (resolveReportDto.resolveBy === 'condos personnel') {
+      for await (const user of users) {
+        if (user.deviceId) deviceIds.push(user.deviceId);
+      }
+    } else {
+      const user = await this.usersService.getUser(userId);
+      if (user.deviceId) deviceIds.push(user.deviceId);
+    }
+
+    if (deviceIds.length > 0) {
+      await admin.messaging().sendToDevice(
+        deviceIds,
+        {
+          notification: {
+            title:
+              report.type === 'complaint' ? 'Complaint' : 'Maintenance Report',
+            body: `Your ${
+              report.type === 'complaint' ? 'complaint' : 'maintenance report'
+            } has been resolve`,
+          },
+        },
+        { priority: 'high' },
+      );
+    }
+
     await this.reportRepository.save({
       id: id,
       status: 'resolved',
