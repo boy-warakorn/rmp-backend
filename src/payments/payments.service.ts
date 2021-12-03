@@ -52,11 +52,31 @@ export class PaymentsService {
   async checkDuedPayment() {
     const currentDate = dayjs().format();
     const payments = await this.paymentRepository.find({
-      select: ['id'],
+      select: ['id', 'roomId'],
       where: { duedAt: LessThan(currentDate), status: 'active' },
     });
 
+    const userId = [];
+
     for await (const payment of payments) {
+      const room = await this.roomService.getRoom(payment.roomId);
+      const user = await this.userService.getUser(room.resident.userId);
+
+      if (user.deviceId && !userId.includes(user.id)) {
+        await admin.messaging().sendToDevice(
+          user.deviceId,
+          {
+            notification: {
+              title: 'Overdued Payments!',
+              body: 'You have new overdued payment!. Please check it in application',
+            },
+          },
+          { priority: 'high' },
+        );
+
+        userId.push(user.id);
+      }
+
       await this.paymentRepository.save({ id: payment.id, status: 'overdue' });
     }
   }
@@ -212,19 +232,20 @@ export class PaymentsService {
       });
       const user = await this.userService.getUser(room.userId);
 
-      if (user.deviceId) {
-        admin.messaging().sendToDevice(
-          user.deviceId,
-          {
-            data: {
-              content: 'A new payment has been created!',
-            },
-          },
-          { priority: 'high' },
-        );
-      }
-
       if (payments.length < 1) {
+        if (user.deviceId) {
+          await admin.messaging().sendToDevice(
+            user.deviceId,
+            {
+              notification: {
+                title: 'New Payments!',
+                body: 'A new payment has been created!',
+              },
+            },
+            { priority: 'high' },
+          );
+        }
+
         const commonChargePayment = new CreatePaymentDto();
         commonChargePayment.amount = this.getCommonCharge();
         commonChargePayment.businessId = room.businessId;

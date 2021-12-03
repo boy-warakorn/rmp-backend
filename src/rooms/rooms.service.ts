@@ -93,6 +93,7 @@ export class RoomsService {
             name: user.profile.name,
             phoneNumber: user.profile.phoneNumber,
             citizenNumber: user.profile.citizenNumber,
+            userId: user.id,
           }
         : {},
       room: {
@@ -113,7 +114,7 @@ export class RoomsService {
   // Done
   async getRoomsForRenewPayment() {
     return await this.roomRepository.find({
-      select: ['id', 'roomNumber', 'pricePerMonth', 'businessId'],
+      select: ['id', 'roomNumber', 'pricePerMonth', 'businessId', 'userId'],
       where: [{ userId: Not(IsNull()) }],
     });
   }
