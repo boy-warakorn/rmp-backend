@@ -1,32 +1,33 @@
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as basicAuth from 'express-basic-auth';
+import { ServiceAccount } from 'firebase-admin';
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './exception/allExceptionFilter';
+import * as admin from 'firebase-admin';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const apiPath = '/api/documentation';
-  app.use(
-    apiPath,
-    basicAuth({
-      challenge: true,
-      users: { apiUser: 'apiPass' },
-    }),
-  );
-  const options = new DocumentBuilder()
-    .setTitle('RMP API')
-    .setDescription('RMP API Description')
-    .setVersion('0.0.1-ALPHA')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, options);
+  const configService: ConfigService = app.get(ConfigService);
 
-  SwaggerModule.setup(apiPath, app, document, {
-    swaggerOptions: {
-      tagsSorter: 'alpha',
-      operationsSorter: 'alpha',
-    },
+  const adminConfig: ServiceAccount = {
+    projectId: configService.get<string>('FIREBASE_PROJECT_ID'),
+    privateKey: configService
+      .get<string>('FIREBASE_PRIVATE_KEY')
+      .replace(/\\n/g, '\n'),
+    clientEmail: configService.get<string>('FIREBASE_CLIENT_EMAIL'),
+  };
+
+  admin.initializeApp({
+    credential: admin.credential.cert(adminConfig),
   });
+
+  app.setGlobalPrefix('/api');
+
+  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new AllExceptionsFilter());
+  app.enableCors();
+
   await app.listen(1234);
 }
 bootstrap();

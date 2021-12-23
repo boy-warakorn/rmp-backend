@@ -1,19 +1,43 @@
-import { Controller, Get, Post } from '@nestjs/common';
-import { InsertResult } from 'typeorm';
-import { User } from './users.model';
+import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UserDto } from './dto/user.dto';
+import { JwtAuthGuard } from 'src/jwt-auth/jwt-auth.guard';
+import { ChangePasswordDto } from './dto/change-password';
+import { UpdateDeviceIdDto } from './dto/update-device-id.dto';
 
-@Controller('/users')
+// @todo implement business id to every get method
+
+@Controller('users')
 export class UsersController {
-  constructor(private readonly userService: UsersService) {}
-
-  @Get('')
-  async getUser(): Promise<User> {
-    return this.userService.findOne(1);
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post('')
-  async createUser(): Promise<InsertResult> {
-    return this.userService.create();
+  async create(@Body() createUserDto: CreateUserDto) {
+    await this.usersService.create(createUserDto);
+  }
+
+  @Get('')
+  @UseGuards(JwtAuthGuard)
+  getUser(@Req() req: Express.Request): Promise<UserDto> {
+    return this.usersService.getUser(req.user['id']);
+  }
+
+  @Post('/change-password')
+  @UseGuards(JwtAuthGuard)
+  changePassword(
+    @Req() req: Express.Request,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.usersService.changePassword(changePasswordDto, req.user['id']);
+  }
+
+  @Post('/update-device-id')
+  @UseGuards(JwtAuthGuard)
+  updateDeviceId(
+    @Req() req: Express.Request,
+    @Body() updateDeviceIdDto: UpdateDeviceIdDto,
+  ) {
+    return this.usersService.updateDeviceId(updateDeviceIdDto, req.user['id']);
   }
 }
